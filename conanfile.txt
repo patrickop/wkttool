@@ -1,0 +1,7 @@
+[requires]
+gtest/1.10.0
+#from qchateau
+NamedType/27cb8d9e0a0d40e786ed43da1388c73f0409fda0
+
+[generators]
+cmake

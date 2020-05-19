@@ -1,0 +1,5 @@
+enable_testing()
+find_package(GTest)
+add_executable(test_screen_projection test_screen_projection.cpp)
+target_link_libraries(test_screen_projection wkttool_lib ${CONAN_LIBS})
+add_test(screen_projection test_screen_projection)

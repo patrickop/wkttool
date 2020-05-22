@@ -1,7 +1,10 @@
 [requires]
+boost/1.73.0
 gtest/1.10.0
+sfml/2.5.1@bincrafters/stable
 #from qchateau
 NamedType/27cb8d9e0a0d40e786ed43da1388c73f0409fda0
+
 
 [generators]
 cmake

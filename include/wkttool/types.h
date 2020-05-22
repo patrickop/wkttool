@@ -12,6 +12,7 @@ namespace wkttool {
   using LowerYBoundary = fluent::NamedType<double, struct LowerYBoundaryTag>;
   using UpperXBoundary = fluent::NamedType<double, struct UpperXBoundaryTag>;
   using UpperYBoundary = fluent::NamedType<double, struct UpperYBoundaryTag>;
+  using Thickness = fluent::NamedType<double, struct ThicknessTag>;
 
   struct ScreenLocation {
     Right right;
@@ -33,6 +34,14 @@ namespace wkttool {
   }
   inline double y(const Point& point) {
     return boost::geometry::get<1>(point);
+  }
+
+  namespace shape {
+    struct Segment {
+      ScreenLocation first;
+      ScreenLocation second;
+
+    };
   }
 
 }

@@ -8,3 +8,7 @@ add_test(screen_projection test_screen_projection)
 add_executable(test_variant_signal test_variant_signal.cpp)
 target_link_libraries(test_variant_signal wkttool_lib ${CONAN_LIBS})
 add_test(variant_signal test_variant_signal)
+
+add_executable(test_sfml_conversion test_sfml_conversion.cpp)
+target_link_libraries(test_sfml_conversion wkttool_lib ${CONAN_LIBS})
+add_test(sfml_conversion test_sfml_conversion)

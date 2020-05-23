@@ -8,7 +8,7 @@ conan_basic_setup()
 
 add_library(wkttool_lib INTERFACE)
 target_include_directories(wkttool_lib INTERFACE include)
-#add_subdirectory(test)
+add_subdirectory(test)
 
 add_executable(main src/main.cpp)
 target_include_directories(main PRIVATE include)

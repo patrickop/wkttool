@@ -1,25 +1,28 @@
 #include <gmock/gmock.h>
 #include <wkttool/screen_projection.h>
 
+
 namespace boost::geometry::model {
 std::ostream& operator<<(std::ostream& os, const wkttool::Point& p) {
   return os << "Point {x " << get<0>(p) <<
   ", y " << get<1>(p) << "}";
   }
   }
+
 namespace wkttool {
+  bool operator==(const ScreenLocation& lhs, const ScreenLocation& rhs) {
+    return lhs.right == rhs.right and lhs.down == rhs.down;
+  }
+  std::ostream& operator<<(std::ostream& os, const ScreenLocation& loc) {
+    return os << "Screen Location {Right " << loc.right.get() <<
+      ", Down " << loc.down.get() << "}";
+  }
+}
+using namespace wkttool;
 MATCHER_P2(Near, expected, tolerance, "") {
   namespace bg = boost::geometry;
   return bg::distance(expected, arg) < tolerance;
 }
-
-bool operator==(const ScreenLocation& lhs, const ScreenLocation& rhs) {
-  return lhs.right == rhs.right and lhs.down == rhs.down;
-}
-std::ostream& operator<<(std::ostream& os, const ScreenLocation& loc) {
-  return os << "Screen Location {Right " << loc.right.get() <<
-  ", Down " << loc.down.get() << "}";
-  }
 using ::testing::Optional;
 
 TEST(TestScreenProjection, ProjectsPointInsideScreen) {
@@ -61,4 +64,7 @@ TEST(TestScreenProjection, InterpolatesPoint) {
 
   
 }
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

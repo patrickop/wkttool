@@ -1,9 +1,10 @@
 #pragma once
 #include <named_type.hpp>
+#include <variant>
 #include <boost/geometry.hpp>
 
 namespace wkttool {
-  
+
   using Point = boost::geometry::model::point<double, 2, boost::geometry::cs::cartesian>;
 
   using Down = fluent::NamedType<uint32_t, struct DownTag, fluent::Comparable>;
@@ -13,6 +14,9 @@ namespace wkttool {
   using UpperXBoundary = fluent::NamedType<double, struct UpperXBoundaryTag>;
   using UpperYBoundary = fluent::NamedType<double, struct UpperYBoundaryTag>;
   using Thickness = fluent::NamedType<double, struct ThicknessTag>;
+  using Red = fluent::NamedType<uint8_t, struct RedTag>;
+  using Green = fluent::NamedType<uint8_t, struct GreenTag>;
+  using Blue = fluent::NamedType<uint8_t, struct BlueTag>;
 
   struct ScreenLocation {
     Right right;
@@ -36,11 +40,24 @@ namespace wkttool {
     return boost::geometry::get<1>(point);
   }
 
+  struct WindowClosed {};
+  using WindowEvent = std::variant<WindowClosed>;
+  using WindowEventCallback = std::function<void(const WindowEvent&)>;
+
+  struct Color {
+    Red red;
+    Green green;
+    Blue blue;
+    };
+  inline constexpr Color black{Red{0}, Green{0}, Blue{0}};
+  inline constexpr Color white{Red{255}, Green{255}, Blue{255}};
+
   namespace shape {
     struct Segment {
-      ScreenLocation first;
-      ScreenLocation second;
-
+      Color color;
+      Thickness thickness; 
+      ScreenLocation start;
+      ScreenLocation end;
     };
   }
 

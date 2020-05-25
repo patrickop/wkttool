@@ -104,17 +104,32 @@ class ScreenProjection {
 
     return ScreenLocationPair{first, second};
   }
-  geometry::Point to_point(const ScreenLocation &location) {
-    const auto x_ratio =
-        static_cast<double>(location.right.get()) / dimensions.right.get();
-    const auto y_ratio =
-        static_cast<double>(location.down.get()) / dimensions.down.get();
+  // TOdo: refactor
+  std::array<double, 2> to_coords_difference(
+      const ScreenLocationDifference &difference) {
+    const auto x_per_point =
+        (boundaries.upper_x.get() - boundaries.lower_x.get()) /
+        static_cast<double>(dimensions.right.get());
+    const auto y_per_point =
+        (boundaries.lower_y.get() - boundaries.upper_y.get()) /
+        static_cast<double>(dimensions.down.get());
 
-    const auto x =
-        std::lerp(boundaries.lower_x.get(), boundaries.upper_x.get(), x_ratio);
-    const auto y =
-        std::lerp(boundaries.upper_y.get(), boundaries.lower_y.get(), y_ratio);
-    return geometry::Point{x, y};
+    return std::array<double, 2>{x_per_point * difference.right.get(),
+                                 y_per_point * difference.down.get()};
+  }
+
+  geometry::Point translate(const geometry::Point &base,
+                            const ScreenLocationDifference &difference) {
+    namespace trans = boost::geometry::strategy::transform;
+    namespace bg = boost::geometry;
+    // todo: this is ugly
+    const auto coords_difference = to_coords_difference(difference);
+    trans::translate_transformer<double, 2, 2> translate(
+        std::get<0>(coords_difference), std::get<1>(coords_difference));
+    geometry::Point result;
+    boost::geometry::transform(base, result, translate);
+
+    return result;
   }
 
  private:

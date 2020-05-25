@@ -14,8 +14,16 @@ using Polygon = boost::geometry::model::polygon<Point>;
 using MultiPoint = boost::geometry::model::multi_point<Point>;
 }  // namespace geometry
 
-using Down = fluent::NamedType<uint32_t, struct DownTag, fluent::Comparable>;
-using Right = fluent::NamedType<uint32_t, struct RightTag, fluent::Comparable>;
+using Down = fluent::NamedType<uint32_t, struct DownTag, fluent::Comparable,
+                               fluent::Addable>;
+using Right = fluent::NamedType<uint32_t, struct RightTag, fluent::Comparable,
+                                fluent::Addable>;
+using DownDifference =
+    fluent::NamedType<int64_t, struct DownTag, fluent::Comparable,
+                      fluent::Subtractable, fluent::Addable>;
+using RightDifference =
+    fluent::NamedType<int64_t, struct RightTag, fluent::Comparable,
+                      fluent::Subtractable, fluent::Addable>;
 using LowerXBoundary = fluent::NamedType<double, struct LowerXBoundaryTag>;
 using LowerYBoundary = fluent::NamedType<double, struct LowerYBoundaryTag>;
 using UpperXBoundary = fluent::NamedType<double, struct UpperXBoundaryTag>;
@@ -35,12 +43,42 @@ struct ScreenLocation {
   Right right;
   Down down;
 };
+struct ScreenLocationDifference {
+  RightDifference right;
+  DownDifference down;
+};
+RightDifference operator-(const Right& from, const Right& to) {
+  const auto from_signed = static_cast<int64_t>(from.get());
+  const auto to_signed = static_cast<int64_t>(to.get());
+  return RightDifference{to_signed - from_signed};
+}
+DownDifference operator-(const Down& from, const Down& to) {
+  const auto from_signed = static_cast<int64_t>(from.get());
+  const auto to_signed = static_cast<int64_t>(to.get());
+  return DownDifference{to_signed - from_signed};
+}
+ScreenLocationDifference operator-(const ScreenLocation& from,
+                                   const ScreenLocation& to) {
+  return ScreenLocationDifference{to.right - from.right, to.down - from.down};
+}
+// ScreenLocation operator-(const ScreenLocation& base, const
+// ScreenLocationDifference& difference) {
+//  return ScreenLocation {
+//    base.right + difference.right,
+//    base.down + difference.down};
+//}
 using ScreenLocationPair = std::pair<ScreenLocation, ScreenLocation>;
 bool operator==(const ScreenLocation& lhs, const ScreenLocation& rhs) {
   return lhs.down == rhs.down and lhs.right == rhs.right;
 }
 std::ostream& operator<<(std::ostream& os, const ScreenLocation& loc) {
   return os << "ScreenLocation "
+               " Right: "
+            << loc.right.get() << " Down: " << loc.down.get();
+}
+std::ostream& operator<<(std::ostream& os,
+                         const ScreenLocationDifference& loc) {
+  return os << "ScreenLocationDifference "
                " Right: "
             << loc.right.get() << " Down: " << loc.down.get();
 }

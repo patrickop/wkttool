@@ -116,17 +116,59 @@ TEST(TestScreenProjection, ProjectsPartiallyCoveredSegmentOnePointOnEdge) {
   EXPECT_THAT(sp, Optional(expected_pair));
 }
 
-TEST(TestScreenProjection, InterpolatesPoint) {
+// TEST(TestScreenProjection, InterpolatesPoint) {
+//  ScreenDimensions dim{Right{200}, Down{200}};
+//  CoordinateBoundaries bound{LowerXBoundary{-1.0}, LowerYBoundary{-1.0},
+//                             UpperXBoundary{1.0}, UpperYBoundary{1.0}};
+//  ScreenProjection projection{dim, bound};
+//  ScreenLocation loc{Right{20}, Down{130}};
+//  geometry::Point expected_point{-0.8, -0.3};
+//  const auto p = projection.to_point(loc);
+//
+//  EXPECT_THAT(p, Near(expected_point, 1e-5));
+//}
+
+TEST(TestScreenProjection, TranslatesPoint) {
   ScreenDimensions dim{Right{200}, Down{200}};
-  CoordinateBoundaries bound{LowerXBoundary{-1.0}, LowerYBoundary{-1.0},
-                             UpperXBoundary{1.0}, UpperYBoundary{1.0}};
+  CoordinateBoundaries bound{LowerXBoundary{-100.0}, LowerYBoundary{-100.0},
+                             UpperXBoundary{100.0}, UpperYBoundary{100.0}};
   ScreenProjection projection{dim, bound};
-  ScreenLocation loc{Right{20}, Down{130}};
-  geometry::Point expected_point{-0.8, -0.3};
-  const auto p = projection.to_point(loc);
+  geometry::Point base{20, 30};
+  ScreenLocationDifference difference{RightDifference{40}, DownDifference{50}};
+
+  geometry::Point expected_point{60, -20};
+  const auto p = projection.translate(base, difference);
 
   EXPECT_THAT(p, Near(expected_point, 1e-5));
 }
+TEST(TestScreenProjection, TranslatesPointNegativeDifference) {
+  ScreenDimensions dim{Right{200}, Down{200}};
+  CoordinateBoundaries bound{LowerXBoundary{-100.0}, LowerYBoundary{-100.0},
+                             UpperXBoundary{100.0}, UpperYBoundary{100.0}};
+  ScreenProjection projection{dim, bound};
+  geometry::Point base{20, 30};
+  ScreenLocationDifference difference{RightDifference{-40},
+                                      DownDifference{-50}};
+
+  geometry::Point expected_point{-20, 80};
+  const auto p = projection.translate(base, difference);
+
+  EXPECT_THAT(p, Near(expected_point, 1e-5));
+}
+TEST(TestScreenProjection, TranslatesPointAtHalfRatio) {
+  ScreenDimensions dim{Right{200}, Down{200}};
+  CoordinateBoundaries bound{LowerXBoundary{-50.0}, LowerYBoundary{-50.0},
+                             UpperXBoundary{50.0}, UpperYBoundary{50.0}};
+  ScreenProjection projection{dim, bound};
+  geometry::Point base{10, 15};
+  ScreenLocationDifference difference{RightDifference{40}, DownDifference{50}};
+
+  geometry::Point expected_point{30, -10};
+  const auto p = projection.translate(base, difference);
+
+  EXPECT_THAT(p, Near(expected_point, 1e-5));
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

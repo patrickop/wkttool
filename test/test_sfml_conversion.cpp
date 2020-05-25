@@ -65,10 +65,74 @@ TEST(TestSFMLConversion, ConvertsMouseMovedEvent) {
   to_internal(ev, listener);
   WindowClosed expected_ev;
   ASSERT_TRUE(listener.event);
+  // todo: use variant matcher
   ASSERT_TRUE(std::holds_alternative<MouseMoved>(*listener.event));
   ASSERT_EQ(std::get<MouseMoved>(*listener.event).destination.right.get(), 22);
   ASSERT_EQ(std::get<MouseMoved>(*listener.event).destination.down.get(), 33);
 }
+TEST(TestSFMLConversion, ConvertsMouseButtonUpEvent) {
+  MockWindowEventListener listener;
+
+  sf::Event ev;
+  ev.type = sf::Event::MouseButtonReleased;
+  ev.mouseButton.x = 22;
+  ev.mouseButton.y = 33;
+  ev.mouseButton.button = sf::Mouse::Button::Left;
+
+  to_internal(ev, listener);
+  WindowClosed expected_ev;
+  ASSERT_TRUE(listener.event);
+  // todo: use variant matcher
+  ASSERT_TRUE(std::holds_alternative<MouseButtonUp>(*listener.event));
+  ASSERT_EQ(std::get<MouseButtonUp>(*listener.event).location.right.get(), 22);
+  ASSERT_EQ(std::get<MouseButtonUp>(*listener.event).location.down.get(), 33);
+  ASSERT_EQ(std::get<MouseButtonUp>(*listener.event).button, MouseButton::left);
+}
+TEST(TestSFMLConversion, ConvertsMouseButtonDownEvent) {
+  MockWindowEventListener listener;
+
+  sf::Event ev;
+  ev.type = sf::Event::MouseButtonPressed;
+  ev.mouseButton.x = 22;
+  ev.mouseButton.y = 33;
+  ev.mouseButton.button = sf::Mouse::Button::Right;
+
+  to_internal(ev, listener);
+  WindowClosed expected_ev;
+  ASSERT_TRUE(listener.event);
+  // todo: use variant matcher
+  ASSERT_TRUE(std::holds_alternative<MouseButtonDown>(*listener.event));
+  ASSERT_EQ(std::get<MouseButtonDown>(*listener.event).location.right.get(),
+            22);
+  ASSERT_EQ(std::get<MouseButtonDown>(*listener.event).location.down.get(), 33);
+  ASSERT_EQ(std::get<MouseButtonDown>(*listener.event).button,
+            MouseButton::right);
+}
+TEST(TestSFMLConversion, ConvertsMouseWheelScrolledEvent) {
+  MockWindowEventListener listener;
+
+  sf::Event ev;
+  ev.type = sf::Event::MouseWheelScrolled;
+  ev.mouseWheelScroll.x = 22;
+  ev.mouseWheelScroll.y = 33;
+  ev.mouseWheelScroll.delta = 1.6;
+
+  to_internal(ev, listener);
+  WindowClosed expected_ev;
+  ASSERT_TRUE(listener.event);
+  // todo: use variant matcher
+  ASSERT_TRUE(std::holds_alternative<MouseWheelScrolled>(*listener.event));
+  ASSERT_EQ(std::get<MouseWheelScrolled>(*listener.event).position.right.get(),
+            22);
+  ASSERT_EQ(std::get<MouseWheelScrolled>(*listener.event).position.down.get(),
+            33);
+  ASSERT_NEAR(std::get<MouseWheelScrolled>(*listener.event).amount.get(), 1.6,
+              1e-5);
+}
+struct MouseWheelScrolled {
+  ScreenLocation position;
+  MouseWheelScollAmount amount;
+};
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

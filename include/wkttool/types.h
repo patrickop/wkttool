@@ -27,7 +27,10 @@ using Green = fluent::NamedType<uint8_t, struct GreenTag, fluent::Comparable>;
 using Blue = fluent::NamedType<uint8_t, struct BlueTag, fluent::Comparable>;
 using XStep = fluent::NamedType<double, struct XStepTag>;
 using YStep = fluent::NamedType<double, struct YStepTag>;
+using MouseWheelScollAmount =
+    fluent::NamedType<double, struct MouseWheelScrollAmountTag>;
 
+enum class MouseButton { right, left };
 struct ScreenLocation {
   Right right;
   Down down;
@@ -65,8 +68,23 @@ struct WindowClosed {};
 struct MouseMoved {
   ScreenLocation destination;
 };
-using WindowEvent = TypeList<WindowClosed, MouseMoved>;
-using WindowEventVariant = std::variant<WindowClosed, MouseMoved>;
+struct MouseWheelScrolled {
+  ScreenLocation position;
+  MouseWheelScollAmount amount;
+};
+struct MouseButtonDown {
+  ScreenLocation location;
+  MouseButton button;
+};
+struct MouseButtonUp {
+  ScreenLocation location;
+  MouseButton button;
+};
+using WindowEvent = TypeList<WindowClosed, MouseMoved, MouseWheelScrolled,
+                             MouseButtonUp, MouseButtonDown>;
+using WindowEventVariant =
+    std::variant<WindowClosed, MouseMoved, MouseWheelScrolled, MouseButtonUp,
+                 MouseButtonDown>;
 
 struct Color {
   Red red;

@@ -30,23 +30,26 @@ auto make_grid_coords(const CoordinateBoundaries& boundaries,
   auto horizontals =
       rv::iota(static_cast<int>(boundaries.lower_y.get() / y_step.get())) |
       rv::transform(std::bind(rng::multiplies{}, y_step.get(), _1)) |
-      rv::take_while(std::bind(rng::less_equal{}, _1, boundaries.upper_y.get())) |
+      rv::take_while(
+          std::bind(rng::less_equal{}, _1, boundaries.upper_y.get())) |
       rv::transform(std::bind(make_horizontal_segment, boundaries, _1));
   auto verticals =
       rv::iota(static_cast<int>(boundaries.lower_x.get() / x_step.get())) |
       rv::transform(std::bind(rng::multiplies{}, x_step.get(), _1)) |
-      rv::take_while(std::bind(rng::less_equal{}, _1, boundaries.upper_x.get())) |
+      rv::take_while(
+          std::bind(rng::less_equal{}, _1, boundaries.upper_x.get())) |
       rv::transform(std::bind(make_vertical_segment, boundaries, _1));
   return rv::concat(horizontals, verticals);
 }
 
-std::optional<shape::Segment> to_shape(const geometry::Segment& geo, const Color& color,
-                        const Thickness& thickness,
-                        ScreenProjection& projector) {
+std::optional<shape::Segment> to_shape(const geometry::Segment& geo,
+                                       const Color& color,
+                                       const Thickness& thickness,
+                                       ScreenProjection& projector) {
   const auto loc = projector.to_screen(geo);
   if (loc)
     return shape::Segment{color, thickness, *loc};
-  else 
+  else
     return std::nullopt;
 }
 
@@ -74,8 +77,8 @@ std::vector<shape::Segment> make_grid(const CoordinateBoundaries& boundaries,
                               Thickness{1}, projector));
 
   return rv::concat(main_lines, supplementary_lines) |
-         rv::filter([] (const auto& seg) {return seg != std::nullopt;}) |
-         rv::transform([] (const auto& seg) {return seg.value();}) |
+         rv::filter([](const auto& seg) { return seg != std::nullopt; }) |
+         rv::transform([](const auto& seg) { return seg.value(); }) |
          rng::to<std::vector<shape::Segment>>;
 }
 

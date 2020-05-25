@@ -1,14 +1,11 @@
-#include <wkttool/sfml_window_adapter.h>
-#include <wkttool/screen_projection.h>
 #include <wkttool/make_grid.h>
+#include <wkttool/screen_projection.h>
+#include <wkttool/sfml_window_adapter.h>
 int main(int, char **) {
   using namespace wkttool;
-  const ScreenDimensions dims {Right{800}, Down{600}};
-  CoordinateBoundaries bounds {
-    LowerXBoundary{-10},
-    LowerYBoundary{-10},
-    UpperXBoundary{10},
-    UpperYBoundary{10}};
+  const ScreenDimensions dims{Right{800}, Down{600}};
+  CoordinateBoundaries bounds{LowerXBoundary{-10}, LowerYBoundary{-10},
+                              UpperXBoundary{10}, UpperYBoundary{10}};
 
   ScreenProjection proj{dims, bounds};
 
@@ -23,13 +20,8 @@ int main(int, char **) {
                  "Left "
               << ev.destination.down.get() << std::endl;
   });
-  const auto grid = make_grid(
-    bounds,
-    proj,
-    XStep{2.0},
-    YStep{2.0},
-    black,
-    grey);
+  const auto grid =
+      make_grid(bounds, proj, XStep{2.0}, YStep{2.0}, black, grey);
 
   while (running) {
     window.handle_events();

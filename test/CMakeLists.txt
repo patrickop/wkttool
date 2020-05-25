@@ -12,3 +12,8 @@ add_test(variant_signal test_variant_signal)
 add_executable(test_sfml_conversion test_sfml_conversion.cpp)
 target_link_libraries(test_sfml_conversion wkttool_lib ${CONAN_LIBS})
 add_test(sfml_conversion test_sfml_conversion)
+
+add_executable(test_make_grid test_make_grid.cpp)
+target_link_libraries(test_make_grid wkttool_lib ${CONAN_LIBS})
+add_test(make_grid test_make_grid)
+

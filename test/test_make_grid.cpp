@@ -63,6 +63,38 @@ TEST(TestMakeGrid, BasicGrid) {
                                        {ScreenLocation{Right{19}, Down{0}},
                                         ScreenLocation{Right{19}, Down{9}}}}));
 }
+TEST(TestMakeGrid, NoLinesJustOffScreen) {
+  CoordinateBoundaries bound{LowerXBoundary{-10}, LowerYBoundary{-5},
+                             UpperXBoundary{10}, UpperYBoundary{5}};
+  ScreenProjection proj{ScreenDimensions{Right{20}, Down{10}}, bound};
+  const auto grid = make_grid(bound, proj, XStep{5}, YStep{5}, black, grey);
+
+  EXPECT_THAT(grid, UnorderedElementsAre(
+                        shape::Segment{grey,
+                                       Thickness{1},
+                                       {ScreenLocation{Right{0}, Down{0}},
+                                        ScreenLocation{Right{19}, Down{0}}}},
+                        shape::Segment{black,
+                                       Thickness{1},
+                                       {ScreenLocation{Right{0}, Down{5}},
+                                        ScreenLocation{Right{19}, Down{5}}}},
+                        shape::Segment{grey,
+                                       Thickness{1},
+                                       {ScreenLocation{Right{0}, Down{0}},
+                                        ScreenLocation{Right{0}, Down{9}}}},
+                        shape::Segment{grey,
+                                       Thickness{1},
+                                       {ScreenLocation{Right{5}, Down{0}},
+                                        ScreenLocation{Right{5}, Down{9}}}},
+                        shape::Segment{black,
+                                       Thickness{1},
+                                       {ScreenLocation{Right{10}, Down{0}},
+                                        ScreenLocation{Right{10}, Down{9}}}},
+                        shape::Segment{grey,
+                                       Thickness{1},
+                                       {ScreenLocation{Right{15}, Down{0}},
+                                        ScreenLocation{Right{15}, Down{9}}}}));
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

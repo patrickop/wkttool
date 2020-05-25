@@ -79,6 +79,9 @@ class ScreenProjection {
           [first_p](const geometry::Point &lhs, const geometry::Point &rhs) {
             return bg::distance(first_p, lhs) < bg::distance(first_p, rhs);
           });
+      if (closest == std::end(out)) {
+        return std::nullopt;
+      }
       first = ScreenLocation{Right{make_discrete(x(*closest))},
                              Down{make_discrete(y(*closest))}};
     }
@@ -92,6 +95,9 @@ class ScreenProjection {
           [second_p](const geometry::Point &lhs, const geometry::Point &rhs) {
             return bg::distance(second_p, lhs) < bg::distance(second_p, rhs);
           });
+      if (closest == std::end(out)) {
+        return std::nullopt;
+      }
       second = ScreenLocation{Right{make_discrete(x(*closest))},
                               Down{make_discrete(y(*closest))}};
     }

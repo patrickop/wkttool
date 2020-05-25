@@ -1,6 +1,17 @@
 #include <wkttool/sfml_window_adapter.h>
+#include <wkttool/screen_projection.h>
+#include <wkttool/make_grid.h>
 int main(int, char **) {
   using namespace wkttool;
+  const ScreenDimensions dims {Right{800}, Down{600}};
+  CoordinateBoundaries bounds {
+    LowerXBoundary{-10},
+    LowerYBoundary{-10},
+    UpperXBoundary{10},
+    UpperYBoundary{10}};
+
+  ScreenProjection proj{dims, bounds};
+
   SFMLWindowAdapter window{"my window",
                            ScreenDimensions{Right{800}, Down{600}}};
 
@@ -12,14 +23,18 @@ int main(int, char **) {
                  "Left "
               << ev.destination.down.get() << std::endl;
   });
-  shape::Segment s{black,
-                   Thickness{5},
-                   {ScreenLocation{Right{300}, Down{300}},
-                    ScreenLocation{Right{500}, Down{400}}}};
+  const auto grid = make_grid(
+    bounds,
+    proj,
+    XStep{2.0},
+    YStep{2.0},
+    black,
+    grey);
+
   while (running) {
     window.handle_events();
     window.clear(white);
-    window.draw(s);
+    window.draw(grid);
     window.display();
   }
 

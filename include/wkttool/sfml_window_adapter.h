@@ -77,6 +77,13 @@ class SFMLWindowAdapter {
     window.draw(s);
   }
 
+  template <typename Object>
+  void draw(const std::vector<Object> &object) {
+    for (const auto& c : object) {
+      draw(c);
+    }
+  }
+
   void clear(const Color &color) { window.clear(to_sfml(color)); }
 
   void display() { window.display(); }

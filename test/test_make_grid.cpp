@@ -11,7 +11,7 @@ TEST(TestMakeGrid, BasicGrid) {
   CoordinateBoundaries bound{LowerXBoundary{-10}, LowerYBoundary{-5},
                              UpperXBoundary{10}, UpperYBoundary{5}};
   ScreenProjection proj{ScreenDimensions{Right{20}, Down{10}}, bound};
-  const auto grid = make_grid(bound, proj, XStep{3}, YStep{2}, black, grey);
+  const auto grid = make_grid(bound, proj, XStep{3}, YStep{2}, grey);
 
   EXPECT_THAT(grid, UnorderedElementsAre(
                         shape::Segment{grey,
@@ -22,7 +22,7 @@ TEST(TestMakeGrid, BasicGrid) {
                                        Thickness{1},
                                        {ScreenLocation{Right{0}, Down{3}},
                                         ScreenLocation{Right{19}, Down{3}}}},
-                        shape::Segment{black,
+                        shape::Segment{grey,
                                        Thickness{1},
                                        {ScreenLocation{Right{0}, Down{5}},
                                         ScreenLocation{Right{19}, Down{5}}}},
@@ -46,7 +46,7 @@ TEST(TestMakeGrid, BasicGrid) {
                                        Thickness{1},
                                        {ScreenLocation{Right{7}, Down{0}},
                                         ScreenLocation{Right{7}, Down{9}}}},
-                        shape::Segment{black,
+                        shape::Segment{grey,
                                        Thickness{1},
                                        {ScreenLocation{Right{10}, Down{0}},
                                         ScreenLocation{Right{10}, Down{9}}}},
@@ -67,14 +67,14 @@ TEST(TestMakeGrid, NoLinesJustOffScreen) {
   CoordinateBoundaries bound{LowerXBoundary{-10}, LowerYBoundary{-5},
                              UpperXBoundary{10}, UpperYBoundary{5}};
   ScreenProjection proj{ScreenDimensions{Right{20}, Down{10}}, bound};
-  const auto grid = make_grid(bound, proj, XStep{5}, YStep{5}, black, grey);
+  const auto grid = make_grid(bound, proj, XStep{5}, YStep{5}, grey);
 
   EXPECT_THAT(grid, UnorderedElementsAre(
                         shape::Segment{grey,
                                        Thickness{1},
                                        {ScreenLocation{Right{0}, Down{0}},
                                         ScreenLocation{Right{19}, Down{0}}}},
-                        shape::Segment{black,
+                        shape::Segment{grey,
                                        Thickness{1},
                                        {ScreenLocation{Right{0}, Down{5}},
                                         ScreenLocation{Right{19}, Down{5}}}},
@@ -86,7 +86,7 @@ TEST(TestMakeGrid, NoLinesJustOffScreen) {
                                        Thickness{1},
                                        {ScreenLocation{Right{5}, Down{0}},
                                         ScreenLocation{Right{5}, Down{9}}}},
-                        shape::Segment{black,
+                        shape::Segment{grey,
                                        Thickness{1},
                                        {ScreenLocation{Right{10}, Down{0}},
                                         ScreenLocation{Right{10}, Down{9}}}},
@@ -94,6 +94,30 @@ TEST(TestMakeGrid, NoLinesJustOffScreen) {
                                        Thickness{1},
                                        {ScreenLocation{Right{15}, Down{0}},
                                         ScreenLocation{Right{15}, Down{9}}}}));
+}
+TEST(TestMakeGrid, Axes) {
+  CoordinateBoundaries bound{LowerXBoundary{-10}, LowerYBoundary{-5},
+                             UpperXBoundary{10}, UpperYBoundary{5}};
+  ScreenProjection proj{ScreenDimensions{Right{20}, Down{10}}, bound};
+  const auto axes = make_axes(bound, proj, black);
+
+  EXPECT_THAT(axes, UnorderedElementsAre(
+                        shape::Segment{black,
+                                       Thickness{1},
+                                       {ScreenLocation{Right{0}, Down{0}},
+                                        ScreenLocation{Right{19}, Down{0}}}},
+                        shape::Segment{black,
+                                       Thickness{1},
+                                       {ScreenLocation{Right{0}, Down{0}},
+                                        ScreenLocation{Right{0}, Down{9}}}}));
+}
+TEST(TestMakeGrid, AxesOffScreen) {
+  CoordinateBoundaries bound{LowerXBoundary{5}, LowerYBoundary{1},
+                             UpperXBoundary{10}, UpperYBoundary{5}};
+  ScreenProjection proj{ScreenDimensions{Right{20}, Down{10}}, bound};
+  const auto axes = make_axes(bound, proj, black);
+
+  EXPECT_TRUE(axes.empty());
 }
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

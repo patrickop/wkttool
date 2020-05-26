@@ -49,7 +49,8 @@ int main(int, char **) {
                                 UpperXBoundary{x(center) + 10.0 * scale},
                                 UpperYBoundary{y(center) + 10.0 * scale}};
     ScreenProjection proj{dims, bounds};
-    window.draw(make_grid(bounds, proj, XStep{2.0}, YStep{2.0}, black, grey));
+    window.draw(make_grid(bounds, proj, XStep{2.0}, YStep{2.0}, grey));
+    window.draw(make_axes(bounds, proj, black));
 
     window.display();
   }

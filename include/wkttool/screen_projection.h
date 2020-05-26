@@ -35,7 +35,7 @@ class ScreenProjection {
                    const CoordinateBoundaries &boundaries)
       : dimensions{dimensions}, boundaries{boundaries} {}
 
-  std::optional<ScreenLocation> to_screen(const geometry::Point &point) {
+  std::optional<ScreenLocation> to_screen(const geometry::Point &point) const {
     const auto mapped_x = range_map_x(x(point));
     if (mapped_x < 0 or mapped_x >= dimensions.right.get()) {
       return std::nullopt;
@@ -48,19 +48,14 @@ class ScreenProjection {
     const Down down{static_cast<uint32_t>(mapped_y)};
     return ScreenLocation{right, down};
   }
+
   std::optional<ScreenLocationPair> to_screen(
-      const geometry::Segment &segment) {
+      const geometry::Segment &segment) const {
     namespace bg = boost::geometry;
     // intersections does not  support segment (yet)
     geometry::Linestring segment_ls{scale_to_screen(segment.first),
                                     scale_to_screen(segment.second)};
-    geometry::Polygon screen = {
-        {geometry::Point{0, 0},
-         geometry::Point{static_cast<double>(dimensions.right.get() - 1), 0},
-         geometry::Point{static_cast<double>(dimensions.right.get() - 1),
-                         static_cast<double>(dimensions.down.get() - 1)},
-         geometry::Point{0, static_cast<double>(dimensions.down.get() - 1)},
-         geometry::Point{0, 0}}};
+    const auto screen = get_screen_polygon();
 
     geometry::MultiPoint out;
     bg::intersection(screen, segment_ls, out);
@@ -82,8 +77,13 @@ class ScreenProjection {
       if (closest == std::end(out)) {
         return std::nullopt;
       }
-      first = ScreenLocation{Right{make_discrete(x(*closest))},
-                             Down{make_discrete(y(*closest))}};
+      const auto discrete_x = make_discrete(x(*closest));
+      const auto discrete_y = make_discrete(y(*closest));
+      if (discrete_x < 0 or discrete_y < 0) {
+        return std::nullopt;
+      }
+      first = ScreenLocation{Right{static_cast<unsigned int>(discrete_x)},
+                             Down{static_cast<unsigned int>(discrete_y)}};
     }
 
     if (trivial_second) {
@@ -98,15 +98,20 @@ class ScreenProjection {
       if (closest == std::end(out)) {
         return std::nullopt;
       }
-      second = ScreenLocation{Right{make_discrete(x(*closest))},
-                              Down{make_discrete(y(*closest))}};
+      const auto discrete_x = make_discrete(x(*closest));
+      const auto discrete_y = make_discrete(y(*closest));
+      if (discrete_x < 0 or discrete_y < 0) {
+        return std::nullopt;
+      }
+      second = ScreenLocation{Right{static_cast<unsigned int>(discrete_x)},
+                              Down{static_cast<unsigned int>(discrete_y)}};
     }
 
     return ScreenLocationPair{first, second};
   }
   // TOdo: refactor
   std::array<double, 2> to_coords_difference(
-      const ScreenLocationDifference &difference) {
+      const ScreenLocationDifference &difference) const {
     const auto x_per_point =
         (boundaries.upper_x.get() - boundaries.lower_x.get()) /
         static_cast<double>(dimensions.right.get());
@@ -119,7 +124,7 @@ class ScreenProjection {
   }
 
   geometry::Point translate(const geometry::Point &base,
-                            const ScreenLocationDifference &difference) {
+                            const ScreenLocationDifference &difference) const {
     namespace trans = boost::geometry::strategy::transform;
     namespace bg = boost::geometry;
     // todo: this is ugly
@@ -133,21 +138,31 @@ class ScreenProjection {
   }
 
  private:
-  int range_map_x(double x) {
+  geometry::Polygon get_screen_polygon() const {
+    return geometry::Polygon{
+        {geometry::Point{0, 0},
+         geometry::Point{static_cast<double>(dimensions.right.get() - 1), 0},
+         geometry::Point{static_cast<double>(dimensions.right.get() - 1),
+                         static_cast<double>(dimensions.down.get() - 1)},
+         geometry::Point{0, static_cast<double>(dimensions.down.get() - 1)},
+         geometry::Point{0, 0}}};
+  }
+  int range_map_x(double x) const {
     return range_map_discrete(boundaries.lower_x.get(),
                               boundaries.upper_x.get(), 0,
                               dimensions.right.get(), x);
   }
-  int range_map_y(double y) {
+  int range_map_y(double y) const {
     return range_map_discrete(boundaries.lower_y.get(),
                               boundaries.upper_y.get(), dimensions.down.get(),
                               0, y);
   }
 
-  geometry::Point scale_to_screen(const geometry::Point &point) {
+  geometry::Point scale_to_screen(const geometry::Point &point) const {
     const auto mapped_x = range_map_x(x(point));
     const auto mapped_y = range_map_y(y(point));
-    return geometry::Point{mapped_x, mapped_y};
+    return geometry::Point{static_cast<double>(mapped_x),
+                           static_cast<double>(mapped_y)};
   }
   ScreenDimensions dimensions;
   CoordinateBoundaries boundaries;

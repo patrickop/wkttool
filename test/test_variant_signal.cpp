@@ -38,16 +38,16 @@ TEST(TestVariantSignal, LambdaListenerIsNotified) {
 }
 TEST(TestVariantSignal, FunctorListenerIsNotified) {
   Signal sig;
-  bool called = false;
+  StrictMock<MockFunction<void(void)> > fn;
   struct Functor {
-    bool &called = called;
-    void operator()(const std::string &) { called = true; }
+    std::function<void(void)> fn;
+    void operator()(const std::string &) { fn(); }
   };
-  Functor f;
+  Functor f{fn.AsStdFunction()};
   sig.connect(f);
 
+  EXPECT_CALL(fn, Call());
   sig(std::string("Hello"));
-  EXPECT_TRUE(called);
 }
 TEST(TestVariantSignal, NoNotificationAfterDisconnect) {
   Signal sig;

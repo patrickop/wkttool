@@ -104,12 +104,12 @@ TEST(TestMakeGrid, Axes) {
   EXPECT_THAT(axes, UnorderedElementsAre(
                         shape::Segment{black,
                                        Thickness{1},
-                                       {ScreenLocation{Right{0}, Down{0}},
-                                        ScreenLocation{Right{19}, Down{0}}}},
+                                       {ScreenLocation{Right{0}, Down{5}},
+                                        ScreenLocation{Right{19}, Down{5}}}},
                         shape::Segment{black,
                                        Thickness{1},
-                                       {ScreenLocation{Right{0}, Down{0}},
-                                        ScreenLocation{Right{0}, Down{9}}}}));
+                                       {ScreenLocation{Right{10}, Down{0}},
+                                        ScreenLocation{Right{10}, Down{9}}}}));
 }
 TEST(TestMakeGrid, AxesOffScreen) {
   CoordinateBoundaries bound{LowerXBoundary{5}, LowerYBoundary{1},

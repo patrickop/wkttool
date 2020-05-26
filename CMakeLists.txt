@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(wkttool)
 
+enable_testing()
 add_definitions("-std=c++20 -fconcepts")
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)

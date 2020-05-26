@@ -16,10 +16,10 @@ TEST(TestSFMLConversion, ConvertsColor) {
   EXPECT_EQ(converted.a, 255);
 }
 TEST(TestSFMLConversion, ConvertsSegment) {
-  shape::Segment s{white,
-                   Thickness{5},
-                   {ScreenLocation{Right{300}, Down{300}},
-                    ScreenLocation{Right{500}, Down{400}}}};
+  drawable::Segment s{white,
+                      Thickness{5},
+                      {ScreenLocation{Right{300}, Down{300}},
+                       ScreenLocation{Right{500}, Down{400}}}};
   const auto converted = to_sfml(s);
   EXPECT_THAT(converted.getSize().x, FloatNear(224, 0.5));
   EXPECT_THAT(converted.getSize().y, FloatNear(5, 0.5));

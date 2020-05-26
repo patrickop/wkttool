@@ -20,3 +20,7 @@ target_link_libraries(test_make_grid wkttool_lib ${CONAN_LIBS})
 add_test(NAME test_make_grid COMMAND test_make_grid
           WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
+add_executable(test_subsample test_subsample.cpp)
+target_link_libraries(test_subsample wkttool_lib ${CONAN_LIBS})
+add_test(NAME test_subsample COMMAND test_subsample
+          WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

@@ -2,8 +2,10 @@
 #include <wkttool/screen_projection.h>
 
 namespace boost::geometry::model {
-std::ostream &operator<<(std::ostream &os, const wkttool::geometry::Point &p) {
-  return os << "Point {x " << get<0>(p) << ", y " << get<1>(p) << "}";
+std::ostream &operator<<(std::ostream &os,
+                         const wkttool::geometry::Point &geo) {
+  namespace bg = boost::geometry;
+  return os << bg::wkt(geo);
 }
 }  // namespace boost::geometry::model
 

@@ -1,9 +1,9 @@
 #pragma once
 #include <wkttool/screen_projection.h>
+#include <wkttool/to_drawables.h>
 #include <wkttool/types.h>
 
 #include <functional>
-#include <range/v3/all.hpp>
 
 namespace wkttool {
 
@@ -42,45 +42,21 @@ auto make_grid_coords(const CoordinateBoundaries& boundaries,
   return rv::concat(horizontals, verticals);
 }
 
-std::optional<shape::Segment> to_shape(const geometry::Segment& geo,
-                                       const Color& color,
-                                       const Thickness& thickness,
-                                       ScreenProjection& projector) {
-  const auto loc = projector.to_screen(geo);
-  if (loc)
-    return shape::Segment{color, thickness, *loc};
-  else
-    return std::nullopt;
-}
-template <typename Segments>
-std::vector<shape::Segment> to_shapes(const Segments& segments,
-                                      const ScreenProjection& projector,
-                                      const Color& lines_color,
-                                      const Thickness& thickness) {
-  namespace rv = ranges::views;
-  namespace rng = ranges;
-  using namespace std::placeholders;
-  return segments |
-         rv::transform(
-             std::bind(to_shape, _1, lines_color, thickness, projector)) |
-         rv::filter([](const auto& seg) { return seg != std::nullopt; }) |
-         rv::transform([](const auto& seg) { return seg.value(); }) |
-         rng::to<std::vector<shape::Segment>>;
-}
-std::vector<shape::Segment> make_grid(const CoordinateBoundaries& boundaries,
-                                      const ScreenProjection& projector,
-                                      const XStep& x_step, const YStep& y_step,
-                                      const Color& lines_color) {
-  return to_shapes(make_grid_coords(boundaries, x_step, y_step), projector,
-                   lines_color, Thickness{1});
+std::vector<drawable::Segment> make_grid(const CoordinateBoundaries& boundaries,
+                                         const ScreenProjection& projector,
+                                         const XStep& x_step,
+                                         const YStep& y_step,
+                                         const Color& lines_color) {
+  return to_drawables(make_grid_coords(boundaries, x_step, y_step), projector,
+                      lines_color, Thickness{1});
 }
 
-std::vector<shape::Segment> make_axes(const CoordinateBoundaries& boundaries,
-                                      const ScreenProjection& projector,
-                                      const Color& lines_color) {
+std::vector<drawable::Segment> make_axes(const CoordinateBoundaries& boundaries,
+                                         const ScreenProjection& projector,
+                                         const Color& lines_color) {
   std::vector<geometry::Segment> axes{make_horizontal_segment(boundaries, 0),
                                       make_vertical_segment(boundaries, 0)};
-  return to_shapes(axes, projector, lines_color, Thickness{1});
+  return to_drawables(axes, projector, lines_color, Thickness{1});
 }
 
 }  // namespace wkttool

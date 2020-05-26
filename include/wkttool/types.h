@@ -12,6 +12,10 @@ using Segment = boost::geometry::model::segment<Point>;
 using Linestring = boost::geometry::model::linestring<Point>;
 using Polygon = boost::geometry::model::polygon<Point>;
 using MultiPoint = boost::geometry::model::multi_point<Point>;
+std::ostream& operator<<(std::ostream& os, const Segment& seg) {
+  namespace bg = boost::geometry;
+  return os << bg::wkt(seg);
+}
 }  // namespace geometry
 
 using Down = fluent::NamedType<uint32_t, struct DownTag, fluent::Comparable,
@@ -143,7 +147,7 @@ inline constexpr Color black{Red{0}, Green{0}, Blue{0}};
 inline constexpr Color white{Red{255}, Green{255}, Blue{255}};
 inline constexpr Color grey{Red{200}, Green{200}, Blue{200}};
 
-namespace shape {
+namespace drawable {
 struct Segment {
   Color color;
   Thickness thickness;
@@ -160,6 +164,6 @@ std::ostream& operator<<(std::ostream& os, const Segment& seg) {
   os << std::get<1>(seg.locations);
   return os;
 }
-}  // namespace shape
+}  // namespace drawable
 
 }  // namespace wkttool

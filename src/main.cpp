@@ -1,6 +1,7 @@
 #include <wkttool/make_grid.h>
 #include <wkttool/screen_projection.h>
 #include <wkttool/sfml_window_adapter.h>
+#include <wkttool/subsample.h>
 
 int main(int, char **) {
   using namespace wkttool;
@@ -51,6 +52,9 @@ int main(int, char **) {
     ScreenProjection proj{dims, bounds};
     window.draw(make_grid(bounds, proj, XStep{2.0}, YStep{2.0}, grey));
     window.draw(make_axes(bounds, proj, black));
+    const auto samples = subsample([](const double &x) { return std::sin(x); },
+                                   0, 2 * M_PI, 100);
+    window.draw(to_drawables(samples, proj, black, Thickness{3}));
 
     window.display();
   }

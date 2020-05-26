@@ -59,7 +59,7 @@ sf::Color to_sfml(const Color &color) {
   return sf::Color{color.red.get(), color.green.get(), color.blue.get()};
 }
 
-sf::RectangleShape to_sfml(const shape::Segment &segment) {
+sf::RectangleShape to_sfml(const drawable::Segment &segment) {
   // staticcast the uints, the result of subtraction may be negative
   const auto right_diff =
       static_cast<int>(std::get<0>(segment.locations).right.get()) -

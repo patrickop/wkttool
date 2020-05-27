@@ -60,24 +60,13 @@ sf::Color to_sfml(const Color &color) {
 }
 
 sf::RectangleShape to_sfml(const drawable::Segment &segment) {
-  // staticcast the uints, the result of subtraction may be negative
-  const auto right_diff =
-      static_cast<int>(std::get<0>(segment.locations).right.get()) -
-      static_cast<int>(std::get<1>(segment.locations).right.get());
-  const auto down_diff =
-      static_cast<int>(std::get<0>(segment.locations).down.get()) -
-      static_cast<int>(std::get<1>(segment.locations).down.get());
-  const float length = std::hypot(right_diff, down_diff);
+  const auto diff = segment.locations.second - segment.locations.first;
+  const float length = std::hypot(diff.right.get(), diff.down.get());
   const float thickness = segment.thickness.get();
   sf::RectangleShape result{sf::Vector2f{length, thickness}};
   // rotation
   const float rot =
-      std::atan2(
-          static_cast<float>(std::get<1>(segment.locations).down.get() -
-                             std::get<0>(segment.locations).down.get()),
-          static_cast<float>(std::get<1>(segment.locations).right.get() -
-                             std::get<0>(segment.locations).right.get())) *
-      180 / M_PI;
+      std::atan2(diff.down.get(), diff.right.get()) * 180.0 / M_PI;
   result.setRotation(rot);
   result.setPosition(sf::Vector2f{
       static_cast<float>(std::get<0>(segment.locations).right.get()),

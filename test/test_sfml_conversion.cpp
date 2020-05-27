@@ -30,10 +30,22 @@ TEST(TestSFMLConversion, ConvertsSegment) {
   EXPECT_EQ(converted.getFillColor().b, 255);
   EXPECT_EQ(converted.getFillColor().a, 255);
   EXPECT_THAT(converted.getRotation(), FloatNear(27.0, 0.5));
-  // EXPECT_EQ(converted.r, c.red.get());
-  // EXPECT_EQ(converted.g, c.green.get());
-  // EXPECT_EQ(converted.b, c.blue.get());
-  // EXPECT_EQ(converted.a, 255);
+}
+TEST(TestSFMLConversion, ConvertsSmallUpwardSegment) {
+  drawable::Segment s{white,
+                      Thickness{1},
+                      {ScreenLocation{Right{300}, Down{300}},
+                       ScreenLocation{Right{302}, Down{298}}}};
+  const auto converted = to_sfml(s);
+  EXPECT_THAT(converted.getSize().x, FloatNear(3, 0.5));
+  EXPECT_THAT(converted.getSize().y, FloatNear(1, 0.5));
+  EXPECT_THAT(converted.getPosition().x, FloatNear(300, 0.5));
+  EXPECT_THAT(converted.getPosition().y, FloatNear(300, 0.5));
+  EXPECT_EQ(converted.getFillColor().r, 255);
+  EXPECT_EQ(converted.getFillColor().g, 255);
+  EXPECT_EQ(converted.getFillColor().b, 255);
+  EXPECT_EQ(converted.getFillColor().a, 255);
+  EXPECT_THAT(converted.getRotation(), FloatNear(315.0, 0.5));
 }
 struct MockWindowEventListener {
   template <typename T>

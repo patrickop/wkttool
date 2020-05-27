@@ -13,5 +13,5 @@ add_subdirectory(test)
 
 add_executable(main src/main.cpp)
 target_include_directories(main PRIVATE include)
-target_link_libraries(main  ${CONAN_LIBS})
+target_link_libraries(main  profiler ${CONAN_LIBS})
 

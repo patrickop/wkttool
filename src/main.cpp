@@ -40,7 +40,7 @@ int main(int, char **) {
           mouse_pressed_down_at = ev.destination;
         }
       });
-
+  auto last_frame = std::chrono::system_clock::now(); 
   while (running) {
     window.handle_events();
     window.clear(white);
@@ -53,10 +53,17 @@ int main(int, char **) {
     window.draw(make_grid(bounds, proj, XStep{2.0}, YStep{2.0}, grey));
     window.draw(make_axes(bounds, proj, black));
     const auto samples = subsample([](const double &x) { return std::sin(x); },
-                                   bounds.lower_x.get(), bounds.upper_x.get(), 100);
+                                   bounds.lower_x.get(), bounds.upper_x.get(), 1000);
     window.draw(to_drawables(samples, proj, black, Thickness{3}));
+    const auto samples2 = subsample([](const double &x) { return std::cos(x); },
+                                   bounds.lower_x.get(), bounds.upper_x.get(), 1000);
+    window.draw(to_drawables(samples2, proj, black, Thickness{3}));
 
     window.display();
+    const auto new_frame = std::chrono::system_clock::now(); 
+    std::cout << "Frame time: " << (new_frame - last_frame).count()/1e6 << std::endl;
+
+    last_frame = new_frame;
   }
 
   return EXIT_SUCCESS;

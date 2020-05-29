@@ -24,3 +24,8 @@ add_executable(test_subsample test_subsample.cpp)
 target_link_libraries(test_subsample wkttool_lib ${CONAN_LIBS})
 add_test(NAME test_subsample COMMAND test_subsample
           WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_executable(test_drawables test_drawables.cpp)
+target_link_libraries(test_drawables wkttool_lib ${CONAN_LIBS})
+add_test(NAME test_drawables COMMAND test_drawables
+          WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

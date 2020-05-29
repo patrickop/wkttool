@@ -52,17 +52,19 @@ class ScreenProjection {
   std::optional<ScreenLocationPair> to_screen(
       const geometry::Segment &segment) const {
     namespace bg = boost::geometry;
-    // intersections does not  support segment (yet)
-    geometry::Linestring segment_ls{scale_to_screen(segment.first),
-                                    scale_to_screen(segment.second)};
-    const auto screen = get_screen_polygon();
-
-    geometry::MultiPoint out;
-    bg::intersection(screen, segment_ls, out);
 
     ScreenLocation first{Right{0}, Down{0}}, second{Right{0}, Down{0}};
     const auto trivial_first = to_screen(std::get<0>(segment));
     const auto trivial_second = to_screen(std::get<1>(segment));
+    geometry::MultiPoint out;
+    geometry::Linestring segment_ls;
+    if (not trivial_first or not trivial_second) {
+      // intersections does not  support segment (yet)
+      segment_ls = geometry::Linestring{scale_to_screen(segment.first),
+                                        scale_to_screen(segment.second)};
+      const auto screen = get_screen_polygon();
+      bg::intersection(screen, segment_ls, out);
+    }
 
     // todo: return nullopt
     if (trivial_first) {

@@ -4,6 +4,18 @@
 #include <range/v3/all.hpp>
 
 namespace wkttool {
+template <typename Points>
+std::vector<geometry::Segment> to_segments(const Points& pts) {
+  namespace rv = ranges::views;
+  namespace rng = ranges;
+  auto froms = pts | rv::drop_last(1);
+  auto tos = pts | rv::tail;
+
+  return rv::zip(froms, tos) | rv::transform([](const auto& pair) {
+           return geometry::Segment{std::get<0>(pair), std::get<1>(pair)};
+         }) |
+         rng::to<std::vector<geometry::Segment>>;
+}
 
 // todo: add concept
 std::vector<geometry::Segment> subsample(std::function<double(const double)> fn,
@@ -24,13 +36,7 @@ std::vector<geometry::Segment> subsample(std::function<double(const double)> fn,
   auto pts = xs | rv::transform([&fn](const auto x) {
                return geometry::Point{x, fn(x)};
              });
-  auto froms = pts | rv::drop_last(1);
-  auto tos = pts | rv::tail;
-
-  return rv::zip(froms, tos) | rv::transform([](const auto& pair) {
-           return geometry::Segment{std::get<0>(pair), std::get<1>(pair)};
-         }) |
-         rng::to<std::vector<geometry::Segment>>;
+  return to_segments(pts);
 }
 
 }  // namespace wkttool

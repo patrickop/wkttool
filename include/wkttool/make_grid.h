@@ -47,8 +47,8 @@ std::vector<drawable::Segment> make_grid(const CoordinateBoundaries& boundaries,
                                          const XStep& x_step,
                                          const YStep& y_step,
                                          const Color& lines_color) {
-  return to_drawables(make_grid_coords(boundaries, x_step, y_step), projector,
-                      lines_color, Thickness{1});
+  return segments_to_drawables(make_grid_coords(boundaries, x_step, y_step),
+                               projector, lines_color, Thickness{1});
 }
 
 std::vector<drawable::Segment> make_axes(const CoordinateBoundaries& boundaries,
@@ -56,7 +56,7 @@ std::vector<drawable::Segment> make_axes(const CoordinateBoundaries& boundaries,
                                          const Color& lines_color) {
   std::vector<geometry::Segment> axes{make_horizontal_segment(boundaries, 0),
                                       make_vertical_segment(boundaries, 0)};
-  return to_drawables(axes, projector, lines_color, Thickness{1});
+  return segments_to_drawables(axes, projector, lines_color, Thickness{1});
 }
 
 }  // namespace wkttool

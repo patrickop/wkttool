@@ -75,6 +75,9 @@ using ScreenLocationPair = std::pair<ScreenLocation, ScreenLocation>;
 bool operator==(const ScreenLocation& lhs, const ScreenLocation& rhs) {
   return lhs.down == rhs.down and lhs.right == rhs.right;
 }
+bool operator==(const ScreenLocationPair& lhs, const ScreenLocationPair& rhs) {
+  return lhs.first == rhs.first and lhs.second == rhs.second;
+}
 std::ostream& operator<<(std::ostream& os, const ScreenLocation& loc) {
   return os << "ScreenLocation "
                " Right: "

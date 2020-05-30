@@ -14,7 +14,6 @@ MATCHER_P2(Near, expected, tolerance, "") {
   namespace bg = boost::geometry;
   return bg::distance(expected, arg) < tolerance;
 }
-using ::testing::Optional;
 
 TEST(TestScreenProjection, ProjectsPointInsideScreen) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -25,7 +24,7 @@ TEST(TestScreenProjection, ProjectsPointInsideScreen) {
   ScreenLocation expected_position{Right{150}, Down{80}};
   const auto sp = projection.to_screen(p);
 
-  EXPECT_THAT(sp, Optional(expected_position));
+  EXPECT_THAT(sp, expected_position);
 }
 TEST(TestScreenProjection, ProjectsPointInsideScreenRounding) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -36,7 +35,7 @@ TEST(TestScreenProjection, ProjectsPointInsideScreenRounding) {
   ScreenLocation expected_position{Right{150}, Down{79}};
   const auto sp = projection.to_screen(p);
 
-  EXPECT_THAT(sp, Optional(expected_position));
+  EXPECT_THAT(sp, expected_position);
 }
 TEST(TestScreenProjection, ProjectsPointInsideScreenLowerEdge) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -47,7 +46,7 @@ TEST(TestScreenProjection, ProjectsPointInsideScreenLowerEdge) {
   ScreenLocation expected_position{Right{0}, Down{0}};
   const auto sp = projection.to_screen(p);
 
-  EXPECT_THAT(sp, Optional(expected_position));
+  EXPECT_THAT(sp, expected_position);
 }
 TEST(TestScreenProjection, ProjectsPointInsideScreenUpperEdge) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -58,7 +57,7 @@ TEST(TestScreenProjection, ProjectsPointInsideScreenUpperEdge) {
   ScreenLocation expected_position{Right{199}, Down{199}};
   const auto sp = projection.to_screen(p);
 
-  EXPECT_THAT(sp, Optional(expected_position));
+  EXPECT_THAT(sp, expected_position);
 }
 TEST(TestScreenProjection, ProjectsPointOutsideScreenLowerEdge) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -69,7 +68,7 @@ TEST(TestScreenProjection, ProjectsPointOutsideScreenLowerEdge) {
   const auto sp = projection.to_screen(p);
 
   ScreenLocation expected_position{Right{-1}, Down{-1}};
-  EXPECT_THAT(sp, Optional(expected_position));
+  EXPECT_THAT(sp, expected_position);
 }
 TEST(TestScreenProjection, ProjectsPointOutsideScreenUpperEdge) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -80,7 +79,7 @@ TEST(TestScreenProjection, ProjectsPointOutsideScreenUpperEdge) {
   const auto sp = projection.to_screen(p);
 
   ScreenLocation expected_position{Right{200}, Down{200}};
-  EXPECT_THAT(sp, Optional(expected_position));
+  EXPECT_THAT(sp, expected_position);
 }
 TEST(TestScreenProjection, ProjectsFullyCoveredSegment) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -92,7 +91,7 @@ TEST(TestScreenProjection, ProjectsFullyCoveredSegment) {
                                    ScreenLocation{Right{120}, Down{100}}};
   const auto sp = projection.to_screen(s);
 
-  EXPECT_THAT(sp, Optional(expected_pair));
+  EXPECT_THAT(sp, expected_pair);
 }
 
 TEST(TestScreenProjection, ProjectsPartiallyCoveredSegment) {
@@ -105,7 +104,7 @@ TEST(TestScreenProjection, ProjectsPartiallyCoveredSegment) {
                                    ScreenLocation{Right{300}, Down{200}}};
   const auto sp = projection.to_screen(s);
 
-  EXPECT_THAT(sp, Optional(expected_pair));
+  EXPECT_THAT(sp, expected_pair);
 }
 TEST(TestScreenProjection, ProjectsPartiallyCoveredSegmentOnePointOnEdge) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -117,7 +116,7 @@ TEST(TestScreenProjection, ProjectsPartiallyCoveredSegmentOnePointOnEdge) {
                                    ScreenLocation{Right{300}, Down{200}}};
   const auto sp = projection.to_screen(s);
 
-  EXPECT_THAT(sp, Optional(expected_pair));
+  EXPECT_THAT(sp, expected_pair);
 }
 
 // TEST(TestScreenProjection, InterpolatesPoint) {

@@ -6,15 +6,11 @@
 namespace wkttool {
 namespace detail {
 template <typename Projection>
-std::optional<drawable::Segment> to_drawable(const geometry::Segment& geo,
+drawable::Segment to_drawable(const geometry::Segment& geo,
                                              const Color& color,
                                              const Thickness& thickness,
                                              Projection& projector) {
-  const auto loc = projector.to_screen(geo);
-  if (loc)
-    return drawable::Segment{color, thickness, *loc};
-  else
-    return std::nullopt;
+    return drawable::Segment{color, thickness, projector.to_screen(geo)};
 }
 }  // namespace detail
 // TODO: unit test
@@ -29,8 +25,6 @@ std::vector<drawable::Segment> segments_to_drawables(
   return segments |
          rv::transform(std::bind(detail::to_drawable<Projection>, _1,
                                  lines_color, thickness, projector)) |
-         rv::filter([](const auto& seg) { return seg != std::nullopt; }) |
-         rv::transform([](const auto& seg) { return seg.value(); }) |
          rng::to<std::vector<drawable::Segment>>;
 }
 

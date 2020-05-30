@@ -2,7 +2,6 @@
 #include <wkttool/types.h>
 
 #include <cmath>
-#include <optional>
 
 namespace wkttool {
 /// puts a number into the fitting bucket of integers
@@ -35,7 +34,7 @@ class ScreenProjection {
                    const CoordinateBoundaries &boundaries)
       : dimensions{dimensions}, boundaries{boundaries} {}
 
-  std::optional<ScreenLocation> to_screen(const geometry::Point &point) const {
+  ScreenLocation to_screen(const geometry::Point &point) const {
     const auto mapped_x = range_map_x(x(point));
     const auto mapped_y = range_map_y(y(point));
     const Right right{mapped_x};
@@ -43,9 +42,9 @@ class ScreenProjection {
     return ScreenLocation{right, down};
   }
 
-  std::optional<ScreenLocationPair> to_screen(
+  ScreenLocationPair to_screen(
       const geometry::Segment &segment) const {
-    return ScreenLocationPair{*to_screen(std::get<0>(segment)), *to_screen(std::get<1>(segment))};
+    return ScreenLocationPair{to_screen(std::get<0>(segment)), to_screen(std::get<1>(segment))};
   }
   // TOdo: refactor
   std::array<double, 2> to_coords_difference(

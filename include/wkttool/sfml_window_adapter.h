@@ -14,27 +14,27 @@ void to_internal(const sf::Event &event, Listener &listener) {
     listener(WindowClosed{});
   }
   if (event.type == sf::Event::MouseMoved) {
-    listener(MouseMoved{Right{static_cast<uint32_t>(event.mouseMove.x)},
-                        Down{static_cast<uint32_t>(event.mouseMove.y)}});
+    listener(MouseMoved{Right{event.mouseMove.x},
+                        Down{event.mouseMove.y}});
   }
   if (event.type == sf::Event::MouseWheelScrolled) {
     listener(MouseWheelScrolled{
-        ScreenLocation{Right{static_cast<uint32_t>(event.mouseWheelScroll.x)},
-                       Down{static_cast<uint32_t>(event.mouseWheelScroll.y)}},
+        ScreenLocation{Right{event.mouseWheelScroll.x},
+                       Down{event.mouseWheelScroll.y}},
         MouseWheelScollAmount{event.mouseWheelScroll.delta}});
   }
   if (event.type == sf::Event::MouseButtonReleased) {
     // Todo: make nice
     if (event.mouseButton.button == sf::Mouse::Button::Right) {
       listener(MouseButtonUp{
-          ScreenLocation{Right{static_cast<uint32_t>(event.mouseButton.x)},
-                         Down{static_cast<uint32_t>(event.mouseButton.y)}},
+          ScreenLocation{Right{event.mouseButton.x},
+                         Down{event.mouseButton.y}},
           MouseButton::right});
     }
     if (event.mouseButton.button == sf::Mouse::Button::Left) {
       listener(MouseButtonUp{
-          ScreenLocation{Right{static_cast<uint32_t>(event.mouseButton.x)},
-                         Down{static_cast<uint32_t>(event.mouseButton.y)}},
+          ScreenLocation{Right{event.mouseButton.x},
+                         Down{event.mouseButton.y}},
           MouseButton::left});
     }
   }
@@ -42,14 +42,14 @@ void to_internal(const sf::Event &event, Listener &listener) {
     // Todo: make nice
     if (event.mouseButton.button == sf::Mouse::Button::Right) {
       listener(MouseButtonDown{
-          ScreenLocation{Right{static_cast<uint32_t>(event.mouseButton.x)},
-                         Down{static_cast<uint32_t>(event.mouseButton.y)}},
+          ScreenLocation{Right{event.mouseButton.x},
+                         Down{event.mouseButton.y}},
           MouseButton::right});
     }
     if (event.mouseButton.button == sf::Mouse::Button::Left) {
       listener(MouseButtonDown{
-          ScreenLocation{Right{static_cast<uint32_t>(event.mouseButton.x)},
-                         Down{static_cast<uint32_t>(event.mouseButton.y)}},
+          ScreenLocation{Right{event.mouseButton.x},
+                         Down{event.mouseButton.y}},
           MouseButton::left});
     }
   }

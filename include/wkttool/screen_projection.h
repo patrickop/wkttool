@@ -37,79 +37,15 @@ class ScreenProjection {
 
   std::optional<ScreenLocation> to_screen(const geometry::Point &point) const {
     const auto mapped_x = range_map_x(x(point));
-    if (mapped_x < 0 or mapped_x >= dimensions.right.get()) {
-      return std::nullopt;
-    }
     const auto mapped_y = range_map_y(y(point));
-    if (mapped_y < 0 or mapped_y >= dimensions.down.get()) {
-      return std::nullopt;
-    }
-    const Right right{static_cast<uint32_t>(mapped_x)};
-    const Down down{static_cast<uint32_t>(mapped_y)};
+    const Right right{mapped_x};
+    const Down down{mapped_y};
     return ScreenLocation{right, down};
   }
 
   std::optional<ScreenLocationPair> to_screen(
       const geometry::Segment &segment) const {
-    namespace bg = boost::geometry;
-
-    ScreenLocation first{Right{0}, Down{0}}, second{Right{0}, Down{0}};
-    const auto trivial_first = to_screen(std::get<0>(segment));
-    const auto trivial_second = to_screen(std::get<1>(segment));
-    geometry::MultiPoint out;
-    geometry::Linestring segment_ls;
-    if (not trivial_first or not trivial_second) {
-      // intersections does not  support segment (yet)
-      segment_ls = geometry::Linestring{scale_to_screen(segment.first),
-                                        scale_to_screen(segment.second)};
-      const auto screen = get_screen_polygon();
-      bg::intersection(screen, segment_ls, out);
-    }
-
-    // todo: return nullopt
-    if (trivial_first) {
-      first = *trivial_first;
-    } else {
-      const geometry::Point first_p = segment_ls[0];
-      const auto closest = std::min_element(
-          std::begin(out), std::end(out),
-          [first_p](const geometry::Point &lhs, const geometry::Point &rhs) {
-            return bg::distance(first_p, lhs) < bg::distance(first_p, rhs);
-          });
-      if (closest == std::end(out)) {
-        return std::nullopt;
-      }
-      const auto discrete_x = make_discrete(x(*closest));
-      const auto discrete_y = make_discrete(y(*closest));
-      if (discrete_x < 0 or discrete_y < 0) {
-        return std::nullopt;
-      }
-      first = ScreenLocation{Right{static_cast<unsigned int>(discrete_x)},
-                             Down{static_cast<unsigned int>(discrete_y)}};
-    }
-
-    if (trivial_second) {
-      second = *trivial_second;
-    } else {
-      const geometry::Point second_p = segment_ls[1];
-      const auto closest = std::min_element(
-          std::begin(out), std::end(out),
-          [second_p](const geometry::Point &lhs, const geometry::Point &rhs) {
-            return bg::distance(second_p, lhs) < bg::distance(second_p, rhs);
-          });
-      if (closest == std::end(out)) {
-        return std::nullopt;
-      }
-      const auto discrete_x = make_discrete(x(*closest));
-      const auto discrete_y = make_discrete(y(*closest));
-      if (discrete_x < 0 or discrete_y < 0) {
-        return std::nullopt;
-      }
-      second = ScreenLocation{Right{static_cast<unsigned int>(discrete_x)},
-                              Down{static_cast<unsigned int>(discrete_y)}};
-    }
-
-    return ScreenLocationPair{first, second};
+    return ScreenLocationPair{*to_screen(std::get<0>(segment)), *to_screen(std::get<1>(segment))};
   }
   // TOdo: refactor
   std::array<double, 2> to_coords_difference(

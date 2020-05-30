@@ -68,7 +68,8 @@ TEST(TestScreenProjection, ProjectsPointOutsideScreenLowerEdge) {
   geometry::Point p{-101, 101};
   const auto sp = projection.to_screen(p);
 
-  EXPECT_EQ(sp, std::nullopt);
+  ScreenLocation expected_position{Right{-1}, Down{-1}};
+  EXPECT_THAT(sp, Optional(expected_position));
 }
 TEST(TestScreenProjection, ProjectsPointOutsideScreenUpperEdge) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -78,7 +79,8 @@ TEST(TestScreenProjection, ProjectsPointOutsideScreenUpperEdge) {
   geometry::Point p{100, -100};
   const auto sp = projection.to_screen(p);
 
-  EXPECT_EQ(sp, std::nullopt);
+  ScreenLocation expected_position{Right{200}, Down{200}};
+  EXPECT_THAT(sp, Optional(expected_position));
 }
 TEST(TestScreenProjection, ProjectsFullyCoveredSegment) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -99,8 +101,8 @@ TEST(TestScreenProjection, ProjectsPartiallyCoveredSegment) {
                              UpperXBoundary{1.0}, UpperYBoundary{1.0}};
   ScreenProjection projection{dim, bound};
   geometry::Segment s{geometry::Point{-1.0, 2.0}, geometry::Point{2.0, -1.0}};
-  ScreenLocationPair expected_pair{ScreenLocation{Right{100}, Down{0}},
-                                   ScreenLocation{Right{199}, Down{99}}};
+  ScreenLocationPair expected_pair{ScreenLocation{Right{0}, Down{-100}},
+                                   ScreenLocation{Right{300}, Down{200}}};
   const auto sp = projection.to_screen(s);
 
   EXPECT_THAT(sp, Optional(expected_pair));
@@ -112,7 +114,7 @@ TEST(TestScreenProjection, ProjectsPartiallyCoveredSegmentOnePointOnEdge) {
   ScreenProjection projection{dim, bound};
   geometry::Segment s{geometry::Point{0.0, 1.0}, geometry::Point{2.0, -1.0}};
   ScreenLocationPair expected_pair{ScreenLocation{Right{100}, Down{0}},
-                                   ScreenLocation{Right{199}, Down{99}}};
+                                   ScreenLocation{Right{300}, Down{200}}};
   const auto sp = projection.to_screen(s);
 
   EXPECT_THAT(sp, Optional(expected_pair));
@@ -136,7 +138,7 @@ TEST(TestScreenProjection, TranslatesPoint) {
                              UpperXBoundary{100.0}, UpperYBoundary{100.0}};
   ScreenProjection projection{dim, bound};
   geometry::Point base{20, 30};
-  ScreenLocationDifference difference{RightDifference{40}, DownDifference{50}};
+  ScreenLocationDifference difference{Right{40}, Down{50}};
 
   geometry::Point expected_point{60, -20};
   const auto p = projection.translate(base, difference);
@@ -149,8 +151,8 @@ TEST(TestScreenProjection, TranslatesPointNegativeDifference) {
                              UpperXBoundary{100.0}, UpperYBoundary{100.0}};
   ScreenProjection projection{dim, bound};
   geometry::Point base{20, 30};
-  ScreenLocationDifference difference{RightDifference{-40},
-                                      DownDifference{-50}};
+  ScreenLocationDifference difference{Right{-40},
+                                      Down{-50}};
 
   geometry::Point expected_point{-20, 80};
   const auto p = projection.translate(base, difference);
@@ -163,7 +165,7 @@ TEST(TestScreenProjection, TranslatesPointAtHalfRatio) {
                              UpperXBoundary{50.0}, UpperYBoundary{50.0}};
   ScreenProjection projection{dim, bound};
   geometry::Point base{10, 15};
-  ScreenLocationDifference difference{RightDifference{40}, DownDifference{50}};
+  ScreenLocationDifference difference{Right{40}, Down{50}};
 
   geometry::Point expected_point{30, -10};
   const auto p = projection.translate(base, difference);

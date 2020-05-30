@@ -77,7 +77,7 @@ int main(int, char **) {
     window.handle_events();
     if (redraw) {
       draw(window, center, scale, dims);
-      redraw = false;
+      //redraw = false;
     }
     const auto new_frame = std::chrono::system_clock::now();
     std::cout << "Frame time: " << (new_frame - last_frame).count() / 1e6

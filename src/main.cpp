@@ -2,6 +2,7 @@
 #include <wkttool/screen_projection.h>
 #include <wkttool/sfml_window_adapter.h>
 #include <wkttool/subsample.h>
+#include <wkttool/to_segments.h>
 
 void draw(wkttool::SFMLWindowAdapter &window,
           const wkttool::geometry::Point &center, const float scale,
@@ -18,19 +19,16 @@ void draw(wkttool::SFMLWindowAdapter &window,
   const auto samples =
       subsample([](const double &x) { return std::sin(x); },
                 bounds.lower_x.get(), bounds.upper_x.get(), 10000);
-  const auto drawables =
-      segments_to_drawables(samples, proj, black, Thickness{3});
   geometry::Polygon poly{
       {geometry::Point{1, 1}, geometry::Point{1, 4}, geometry::Point{4, 5},
        geometry::Point{4, 1}, geometry::Point{1, 1}},
       {geometry::Point{2, 2}, geometry::Point{2, 3}, geometry::Point{3, 3},
        geometry::Point{3, 2}, geometry::Point{2, 2}}};
-  const auto poly_drawables =
-      polygon_to_drawables(poly, proj, black, Thickness{5});
+  const auto poly_segments = to_segments(poly);
   window.draw(grid);
   window.draw(axes);
-  window.draw(drawables);
-  window.draw(poly_drawables);
+  window.draw(segments_to_drawables(samples, proj, black, Thickness{3}));
+  window.draw(segments_to_drawables(poly_segments, proj, black, Thickness{3}));
 
   window.display();
 }

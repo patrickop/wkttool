@@ -14,8 +14,8 @@ void draw(wkttool::SFMLWindowAdapter &window,
                               UpperXBoundary{x(center) + 10.0 * scale},
                               UpperYBoundary{y(center) + 10.0 * scale}};
   ScreenProjection proj{dims, bounds};
-  const auto grid = make_grid(bounds, proj, XStep{2.0}, YStep{2.0}, grey);
-  const auto axes = make_axes(bounds, proj, black);
+  const auto grid = make_grid(bounds, XStep{2.0}, YStep{2.0});
+  const auto axes = make_axes(bounds);
   const auto samples =
       subsample([](const double &x) { return std::sin(x); },
                 bounds.lower_x.get(), bounds.upper_x.get(), 10000);
@@ -25,8 +25,8 @@ void draw(wkttool::SFMLWindowAdapter &window,
       {geometry::Point{2, 2}, geometry::Point{2, 3}, geometry::Point{3, 3},
        geometry::Point{3, 2}, geometry::Point{2, 2}}};
   const auto poly_segments = to_segments(poly);
-  window.draw(grid);
-  window.draw(axes);
+  window.draw(segments_to_drawables(grid, proj, grey, Thickness{1}));
+  window.draw(segments_to_drawables(axes, proj, black, Thickness{2}));
   window.draw(segments_to_drawables(samples, proj, black, Thickness{3}));
   window.draw(segments_to_drawables(poly_segments, proj, black, Thickness{3}));
 

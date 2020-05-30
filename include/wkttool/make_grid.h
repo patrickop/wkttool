@@ -22,8 +22,9 @@ geometry::Segment make_horizontal_segment(
   return result;
 }
 
-auto make_grid_coords(const CoordinateBoundaries& boundaries,
-                      const XStep& x_step, const YStep& y_step) {
+std::vector<geometry::Segment> make_grid(const CoordinateBoundaries& boundaries,
+                                         const XStep& x_step,
+                                         const YStep& y_step) {
   using namespace std::placeholders;
   namespace rv = ranges::views;
   namespace rng = ranges;
@@ -39,26 +40,13 @@ auto make_grid_coords(const CoordinateBoundaries& boundaries,
       rv::take_while(
           std::bind(rng::less_equal{}, _1, boundaries.upper_x.get())) |
       rv::transform(std::bind(make_vertical_segment, boundaries, _1));
-  return rv::concat(horizontals, verticals);
+  return rv::concat(horizontals, verticals) | rng::to<std::vector<geometry::Segment>>;
 }
 
-std::vector<drawable::Segment> make_grid(const CoordinateBoundaries& boundaries,
-                                         const ScreenProjection& projector,
-                                         const XStep& x_step,
-                                         const YStep& y_step,
-                                         const Color& lines_color) {
-  return wkttool::segments_to_drawables(
-      make_grid_coords(boundaries, x_step, y_step), projector, lines_color,
-      Thickness{1});
-}
-
-std::vector<drawable::Segment> make_axes(const CoordinateBoundaries& boundaries,
-                                         const ScreenProjection& projector,
-                                         const Color& lines_color) {
-  std::vector<geometry::Segment> axes{make_horizontal_segment(boundaries, 0),
+std::vector<geometry::Segment> make_axes(const CoordinateBoundaries& boundaries){
+                                         
+  return {make_horizontal_segment(boundaries, 0),
                                       make_vertical_segment(boundaries, 0)};
-  return wkttool::segments_to_drawables(axes, projector, lines_color,
-                                        Thickness{1});
 }
 
 }  // namespace wkttool

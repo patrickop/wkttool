@@ -25,10 +25,14 @@ void draw(wkttool::SFMLWindowAdapter &window,
       {geometry::Point{2, 2}, geometry::Point{2, 3}, geometry::Point{3, 3},
        geometry::Point{3, 2}, geometry::Point{2, 2}}};
   const auto poly_segments = to_segments(poly);
+  const geometry::Linestring ls{geometry::Point{0, 0}, geometry::Point{33, 3},
+                                geometry::Point{44, 55}};
+  const auto ls_segments = to_segments(ls);
   window.draw(segments_to_drawables(grid, proj, grey, Thickness{1}));
   window.draw(segments_to_drawables(axes, proj, black, Thickness{2}));
   window.draw(segments_to_drawables(samples, proj, black, Thickness{3}));
   window.draw(segments_to_drawables(poly_segments, proj, black, Thickness{3}));
+  window.draw(segments_to_drawables(ls_segments, proj, red, Thickness{5}));
 
   window.display();
 }
@@ -77,7 +81,7 @@ int main(int, char **) {
     window.handle_events();
     if (redraw) {
       draw(window, center, scale, dims);
-      //redraw = false;
+      // redraw = false;
     }
     const auto new_frame = std::chrono::system_clock::now();
     std::cout << "Frame time: " << (new_frame - last_frame).count() / 1e6

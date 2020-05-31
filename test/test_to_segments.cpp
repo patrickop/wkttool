@@ -42,6 +42,16 @@ TEST(TestToSegments, SubSample) {
           Near(Segment{Point{M_PI, 0}, Point{M_PI * 1.5, -1}}, 1e-5),
           Near(Segment{Point{M_PI * 1.5, -1}, Point{M_PI * 2.0, 0}}, 1e-5)));
 }
+TEST(TestToSegments, Linestring) {
+  using namespace wkttool::geometry;
+
+  const Linestring ls{Point{0, 0}, Point{33, 3}, Point{44, 55}};
+
+  const auto result = to_segments(ls);
+  EXPECT_THAT(result, UnorderedElementsAre(
+                          Near(Segment{Point{0, 0}, Point{33, 3}}, 1e-5),
+                          Near(Segment{Point{33, 3}, Point{44, 55}}, 1e-5)));
+}
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

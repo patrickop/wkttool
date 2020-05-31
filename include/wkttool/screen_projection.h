@@ -42,9 +42,9 @@ class ScreenProjection {
     return ScreenLocation{right, down};
   }
 
-  ScreenLocationPair to_screen(
-      const geometry::Segment &segment) const {
-    return ScreenLocationPair{to_screen(std::get<0>(segment)), to_screen(std::get<1>(segment))};
+  ScreenLocationPair to_screen(const geometry::Segment &segment) const {
+    return ScreenLocationPair{to_screen(std::get<0>(segment)),
+                              to_screen(std::get<1>(segment))};
   }
   // TOdo: refactor
   std::array<double, 2> to_coords_difference(

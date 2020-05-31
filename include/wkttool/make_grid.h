@@ -40,13 +40,14 @@ std::vector<geometry::Segment> make_grid(const CoordinateBoundaries& boundaries,
       rv::take_while(
           std::bind(rng::less_equal{}, _1, boundaries.upper_x.get())) |
       rv::transform(std::bind(make_vertical_segment, boundaries, _1));
-  return rv::concat(horizontals, verticals) | rng::to<std::vector<geometry::Segment>>;
+  return rv::concat(horizontals, verticals) |
+         rng::to<std::vector<geometry::Segment>>;
 }
 
-std::vector<geometry::Segment> make_axes(const CoordinateBoundaries& boundaries){
-                                         
+std::vector<geometry::Segment> make_axes(
+    const CoordinateBoundaries& boundaries) {
   return {make_horizontal_segment(boundaries, 0),
-                                      make_vertical_segment(boundaries, 0)};
+          make_vertical_segment(boundaries, 0)};
 }
 
 }  // namespace wkttool

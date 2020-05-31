@@ -14,8 +14,7 @@ void to_internal(const sf::Event &event, Listener &listener) {
     listener(WindowClosed{});
   }
   if (event.type == sf::Event::MouseMoved) {
-    listener(MouseMoved{Right{event.mouseMove.x},
-                        Down{event.mouseMove.y}});
+    listener(MouseMoved{Right{event.mouseMove.x}, Down{event.mouseMove.y}});
   }
   if (event.type == sf::Event::MouseWheelScrolled) {
     listener(MouseWheelScrolled{
@@ -27,14 +26,12 @@ void to_internal(const sf::Event &event, Listener &listener) {
     // Todo: make nice
     if (event.mouseButton.button == sf::Mouse::Button::Right) {
       listener(MouseButtonUp{
-          ScreenLocation{Right{event.mouseButton.x},
-                         Down{event.mouseButton.y}},
+          ScreenLocation{Right{event.mouseButton.x}, Down{event.mouseButton.y}},
           MouseButton::right});
     }
     if (event.mouseButton.button == sf::Mouse::Button::Left) {
       listener(MouseButtonUp{
-          ScreenLocation{Right{event.mouseButton.x},
-                         Down{event.mouseButton.y}},
+          ScreenLocation{Right{event.mouseButton.x}, Down{event.mouseButton.y}},
           MouseButton::left});
     }
   }
@@ -42,14 +39,12 @@ void to_internal(const sf::Event &event, Listener &listener) {
     // Todo: make nice
     if (event.mouseButton.button == sf::Mouse::Button::Right) {
       listener(MouseButtonDown{
-          ScreenLocation{Right{event.mouseButton.x},
-                         Down{event.mouseButton.y}},
+          ScreenLocation{Right{event.mouseButton.x}, Down{event.mouseButton.y}},
           MouseButton::right});
     }
     if (event.mouseButton.button == sf::Mouse::Button::Left) {
       listener(MouseButtonDown{
-          ScreenLocation{Right{event.mouseButton.x},
-                         Down{event.mouseButton.y}},
+          ScreenLocation{Right{event.mouseButton.x}, Down{event.mouseButton.y}},
           MouseButton::left});
     }
   }

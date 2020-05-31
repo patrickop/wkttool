@@ -6,11 +6,10 @@
 namespace wkttool {
 namespace detail {
 template <typename Projection>
-drawable::Segment to_drawable(const geometry::Segment& geo,
-                                             const Color& color,
-                                             const Thickness& thickness,
-                                             Projection& projector) {
-    return drawable::Segment{color, thickness, projector.to_screen(geo)};
+drawable::Segment to_drawable(const geometry::Segment& geo, const Color& color,
+                              const Thickness& thickness,
+                              Projection& projector) {
+  return drawable::Segment{color, thickness, projector.to_screen(geo)};
 }
 }  // namespace detail
 // TODO: unit test

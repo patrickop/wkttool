@@ -57,5 +57,9 @@ std::vector<geometry::Segment> subsample(std::function<double(const double)> fn,
              });
   return detail::connect_by_segments(pts);
 }
+std::vector<geometry::Segment> to_segments(
+    const geometry::Linestring& linestring) {
+  return detail::connect_by_segments(linestring);
+}
 
 }  // namespace wkttool

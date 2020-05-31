@@ -150,8 +150,7 @@ TEST(TestScreenProjection, TranslatesPointNegativeDifference) {
                              UpperXBoundary{100.0}, UpperYBoundary{100.0}};
   ScreenProjection projection{dim, bound};
   geometry::Point base{20, 30};
-  ScreenLocationDifference difference{Right{-40},
-                                      Down{-50}};
+  ScreenLocationDifference difference{Right{-40}, Down{-50}};
 
   geometry::Point expected_point{-20, 80};
   const auto p = projection.translate(base, difference);

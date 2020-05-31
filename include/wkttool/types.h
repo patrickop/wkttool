@@ -127,6 +127,7 @@ bool operator==(const Color& lhs, const Color& rhs) {
 inline constexpr Color black{Red{0}, Green{0}, Blue{0}};
 inline constexpr Color white{Red{255}, Green{255}, Blue{255}};
 inline constexpr Color grey{Red{200}, Green{200}, Blue{200}};
+inline constexpr Color red{Red{255}, Green{0}, Blue{0}};
 
 namespace drawable {
 struct Segment {

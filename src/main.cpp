@@ -28,11 +28,14 @@ void draw(wkttool::SFMLWindowAdapter &window,
   const geometry::Linestring ls{geometry::Point{0, 0}, geometry::Point{33, 3},
                                 geometry::Point{44, 55}};
   const auto ls_segments = to_segments(ls);
+  const geometry::Point pt{1, 1};
   window.draw(segments_to_drawables(grid, proj, grey, Thickness{1}));
   window.draw(segments_to_drawables(axes, proj, black, Thickness{2}));
   window.draw(segments_to_drawables(samples, proj, black, Thickness{3}));
   window.draw(segments_to_drawables(poly_segments, proj, black, Thickness{3}));
   window.draw(segments_to_drawables(ls_segments, proj, red, Thickness{5}));
+  window.draw(
+      point_to_drawables(pt, proj, black, Thickness{1}, Right{10}, Down{10}));
 
   window.display();
 }

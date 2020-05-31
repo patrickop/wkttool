@@ -14,6 +14,12 @@ class SimpleProjection {
     return ScreenLocationPair{ScreenLocation{Right{x1}, Down{y1}},
                               ScreenLocation{Right{x2}, Down{y2}}};
   }
+  geometry::Point translate(const geometry::Point& base,
+                            const ScreenLocationDifference& difference) const {
+    const double x_val = x(base) + static_cast<double>(difference.right.get());
+    const double y_val = y(base) + static_cast<double>(difference.down.get());
+    return geometry::Point{x_val, y_val};
+  }
 };
 
 TEST(TestDrawable, Segments) {
@@ -32,6 +38,24 @@ TEST(TestDrawable, Segments) {
                                     Thickness{2},
                                     {ScreenLocation{Right{5}, Down{5}},
                                      ScreenLocation{Right{6}, Down{6}}}}));
+}
+
+TEST(TestDrawable, Point) {
+  using namespace geometry;
+  Point pt{2, 3};
+  SimpleProjection proj;
+  const auto result =
+      point_to_drawables(pt, proj, white, Thickness{2}, Right{2}, Down{1});
+  EXPECT_THAT(result,
+              UnorderedElementsAre(
+                  drawable::Segment{white,
+                                    Thickness{2},
+                                    {ScreenLocation{Right{0}, Down{2}},
+                                     ScreenLocation{Right{4}, Down{4}}}},
+                  drawable::Segment{white,
+                                    Thickness{2},
+                                    {ScreenLocation{Right{0}, Down{4}},
+                                     ScreenLocation{Right{4}, Down{2}}}}));
 }
 
 int main(int argc, char** argv) {

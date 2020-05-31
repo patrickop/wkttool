@@ -10,10 +10,14 @@ std::ostream &operator<<(std::ostream &os,
 }
 }  // namespace boost::geometry::model
 
-MATCHER_P2(Near, seg, tol, "") {
+MATCHER_P2(SegmentNear, seg, tol, "") {
   namespace bg = boost::geometry;
   return (bg::distance(seg.first, arg.first) < tol and
           bg::distance(seg.second, arg.second) < tol) or
          (bg::distance(seg.first, arg.second) < tol and
           bg::distance(seg.second, arg.first) < tol);
+}
+MATCHER_P2(PointNear, pt, tol, "") {
+  namespace bg = boost::geometry;
+  return bg::distance(pt, arg) < tol;
 }

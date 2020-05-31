@@ -11,10 +11,31 @@ using Point =
 using Segment = boost::geometry::model::segment<Point>;
 using Linestring = boost::geometry::model::linestring<Point>;
 using Polygon = boost::geometry::model::polygon<Point>;
+
 using MultiPoint = boost::geometry::model::multi_point<Point>;
+using MultiPolygon = boost::geometry::model::multi_polygon<Polygon>;
+using MultiLinestring = boost::geometry::model::multi_linestring<Linestring>;
+
+using Geometry = std::variant<
+  Point,
+  Linestring,
+  Polygon,
+  MultiPoint,
+  MultiLinestring,
+  MultiPolygon>;
+
+struct LabeledGeometry {
+  std::optional<std::string> label;
+  Geometry geo;
+};
+
 std::ostream& operator<<(std::ostream& os, const Segment& seg) {
   namespace bg = boost::geometry;
   return os << bg::wkt(seg);
+}
+std::ostream& operator<<(std::ostream& os, const Point& pt) {
+  namespace bg = boost::geometry;
+  return os << bg::wkt(pt);
 }
 }  // namespace geometry
 

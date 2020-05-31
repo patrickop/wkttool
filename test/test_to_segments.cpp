@@ -15,14 +15,14 @@ TEST(TestToSegments, Polygon) {
 
   const auto result = to_segments(poly);
   EXPECT_THAT(result, UnorderedElementsAre(
-                          Near(Segment{Point{0, 0}, Point{0, 100}}, 1e-5),
-                          Near(Segment{Point{0, 100}, Point{100, 100}}, 1e-5),
-                          Near(Segment{Point{100, 100}, Point{100, 0}}, 1e-5),
-                          Near(Segment{Point{100, 0}, Point{0, 0}}, 1e-5),
-                          Near(Segment{Point{10, 10}, Point{10, 90}}, 1e-5),
-                          Near(Segment{Point{10, 90}, Point{90, 90}}, 1e-5),
-                          Near(Segment{Point{90, 90}, Point{90, 10}}, 1e-5),
-                          Near(Segment{Point{90, 10}, Point{10, 10}}, 1e-5)));
+                          SegmentNear(Segment{Point{0, 0}, Point{0, 100}}, 1e-5),
+                          SegmentNear(Segment{Point{0, 100}, Point{100, 100}}, 1e-5),
+                          SegmentNear(Segment{Point{100, 100}, Point{100, 0}}, 1e-5),
+                          SegmentNear(Segment{Point{100, 0}, Point{0, 0}}, 1e-5),
+                          SegmentNear(Segment{Point{10, 10}, Point{10, 90}}, 1e-5),
+                          SegmentNear(Segment{Point{10, 90}, Point{90, 90}}, 1e-5),
+                          SegmentNear(Segment{Point{90, 90}, Point{90, 10}}, 1e-5),
+                          SegmentNear(Segment{Point{90, 10}, Point{10, 10}}, 1e-5)));
 }
 TEST(TestToSegments, SubSample) {
   const size_t samples = 5;
@@ -37,10 +37,10 @@ TEST(TestToSegments, SubSample) {
   EXPECT_THAT(
       segments,
       UnorderedElementsAre(
-          Near(Segment{Point{0, 0}, Point{M_PI / 2.0, 1}}, 1e-5),
-          Near(Segment{Point{M_PI / 2.0, 1}, Point{M_PI, 0}}, 1e-5),
-          Near(Segment{Point{M_PI, 0}, Point{M_PI * 1.5, -1}}, 1e-5),
-          Near(Segment{Point{M_PI * 1.5, -1}, Point{M_PI * 2.0, 0}}, 1e-5)));
+          SegmentNear(Segment{Point{0, 0}, Point{M_PI / 2.0, 1}}, 1e-5),
+          SegmentNear(Segment{Point{M_PI / 2.0, 1}, Point{M_PI, 0}}, 1e-5),
+          SegmentNear(Segment{Point{M_PI, 0}, Point{M_PI * 1.5, -1}}, 1e-5),
+          SegmentNear(Segment{Point{M_PI * 1.5, -1}, Point{M_PI * 2.0, 0}}, 1e-5)));
 }
 TEST(TestToSegments, Linestring) {
   using namespace wkttool::geometry;
@@ -49,8 +49,8 @@ TEST(TestToSegments, Linestring) {
 
   const auto result = to_segments(ls);
   EXPECT_THAT(result, UnorderedElementsAre(
-                          Near(Segment{Point{0, 0}, Point{33, 3}}, 1e-5),
-                          Near(Segment{Point{33, 3}, Point{44, 55}}, 1e-5)));
+                          SegmentNear(Segment{Point{0, 0}, Point{33, 3}}, 1e-5),
+                          SegmentNear(Segment{Point{33, 3}, Point{44, 55}}, 1e-5)));
 }
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

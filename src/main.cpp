@@ -18,7 +18,7 @@ void draw(wkttool::SFMLWindowAdapter &window,
   const auto axes = make_axes(bounds);
   const auto samples =
       subsample([](const double &x) { return std::sin(x); },
-                bounds.lower_x.get(), bounds.upper_x.get(), 10000);
+                bounds.lower_x.get(), bounds.upper_x.get(), 800);
   geometry::Polygon poly{
       {geometry::Point{1, 1}, geometry::Point{1, 4}, geometry::Point{4, 5},
        geometry::Point{4, 1}, geometry::Point{1, 1}},

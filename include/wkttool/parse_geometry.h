@@ -36,4 +36,16 @@ namespace wkttool {
     }
     return std::nullopt;
   }
+  std::vector<std::string> tokenize(const std::string& raw) {
+    std::vector<std::string> result;
+    std::string working{raw};
+    // remove linebreaks
+    working.erase(remove(std::begin(working), std::end(working), '\n'), std::end(working));
+    boost::algorithm::split(result, working, boost::algorithm::is_any_of(";"));
+    // remove trailing and leading whitespace
+    for (auto& l : result) {
+      boost::algorithm::trim(l);
+    }
+    return result;
+  }
 }

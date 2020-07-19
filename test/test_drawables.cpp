@@ -58,6 +58,32 @@ TEST(TestDrawable, Point) {
                                      ScreenLocation{Right{4}, Down{2}}}}));
 }
 
+TEST(TestDrawable, MultiPoint) {
+  using namespace geometry;
+  MultiPoint pts{{2, 3},{12, 13}};
+  SimpleProjection proj;
+  const auto result =
+      points_to_drawables(pts, proj, white, Thickness{2}, Right{2}, Down{1});
+  EXPECT_THAT(result,
+              UnorderedElementsAre(
+                  drawable::Segment{white,
+                                    Thickness{2},
+                                    {ScreenLocation{Right{0}, Down{2}},
+                                     ScreenLocation{Right{4}, Down{4}}}},
+                  drawable::Segment{white,
+                                    Thickness{2},
+                                    {ScreenLocation{Right{0}, Down{4}},
+                                     ScreenLocation{Right{4}, Down{2}}}},
+                  drawable::Segment{white,
+                                    Thickness{2},
+                                    {ScreenLocation{Right{10}, Down{12}},
+                                     ScreenLocation{Right{14}, Down{14}}}},
+                  drawable::Segment{white,
+                                    Thickness{2},
+                                    {ScreenLocation{Right{10}, Down{14}},
+                                     ScreenLocation{Right{14}, Down{12}}}}));
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

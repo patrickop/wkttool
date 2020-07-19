@@ -3,13 +3,22 @@
 #include <wkttool/sfml_window_adapter.h>
 #include <wkttool/subsample.h>
 #include <wkttool/to_segments.h>
-#include "imgui.h"
-#include "imgui_stdlib.h"
-
-void draw(wkttool::SFMLWindowAdapter &window,
+#include <wkttool/parse_geometry.h>
+#include <imgui.h>
+#include <imgui_stdlib.h>
+constexpr auto initial_scenario = "POINT(1 2);\n\
+LINESTRING(0 0,2 2,3 1);\n\
+POLYGON((0 0,0 7,4 2,2 0,0 0));\n\
+MULTIPOINT(1.5 2.5, -3 -2);\n\
+MULTILINESTRING((-1 2, -2 1),(7 7, 8 10));\n\
+MULTIPOLYGON(((0 0,0 -7,-4 -2,-2 0,0 0)), ((5 -2, 6 -3, 4 -2.5, 5 -2)))";
+template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
+std::string draw(wkttool::SFMLWindowAdapter &window,
           const wkttool::geometry::Point &center, const float scale,
           const wkttool::ScreenDimensions &dims, const std::string& shapes) {
   using namespace wkttool;
+  std::stringstream errors;
   window.clear(white);
   CoordinateBoundaries bounds{LowerXBoundary{x(center) - 10.0 * scale},
                               LowerYBoundary{y(center) - 10.0 * scale},
@@ -20,30 +29,41 @@ void draw(wkttool::SFMLWindowAdapter &window,
   const auto axes = make_axes(bounds);
   window.draw(segments_to_drawables(grid, proj, grey, Thickness{1}));
   window.draw(segments_to_drawables(axes, proj, black, Thickness{2}));
-  //const auto samples =
-  //    subsample([](const double &x) { return std::sin(x); },
-  //              bounds.lower_x.get(), bounds.upper_x.get(), 800);
-  geometry::Polygon poly;
-  try {
-    boost::geometry::read_wkt(shapes, poly);
-    const auto poly_segments = to_segments(poly);
-    window.draw(segments_to_drawables(poly_segments, proj, black, Thickness{3}));
-  } catch (const std::exception& ex) {
-    std::cerr << ex.what() << std::endl;
+  const auto tokens = tokenize(shapes);
+  for (const auto& token : tokens) {
+    try {
+      const auto geo = parse(token);
+      if (geo) {
+        std::visit(overload{
+          [&proj, &window] (const geometry::Polygon& poly) {
+              const auto segments =  to_segments(poly);
+              window.draw(segments_to_drawables(segments, proj, black, Thickness{3}));},
+          [&proj, &window] (const geometry::MultiPolygon& polys) {
+              const auto segments =  to_segments(polys);
+              window.draw(segments_to_drawables(segments, proj, black, Thickness{3}));},
+          [&proj, &window] (const geometry::MultiLinestring& lss) {
+              const auto segments =  to_segments(lss);
+              window.draw(segments_to_drawables(segments, proj, black, Thickness{3}));},
+          [&proj, &window] (const geometry::Linestring& ls) {
+              const auto segments =  to_segments(ls);
+              window.draw(segments_to_drawables(segments, proj, black, Thickness{3}));},
+          [&proj, &window] (const geometry::Point& point) {
+              window.draw(point_to_drawables(
+              point, proj, black, Thickness{1}, Right{10}, Down{10}));},
+          [&proj, &window] (const geometry::MultiPoint& points) {
+              window.draw(points_to_drawables(
+              points, proj, black, Thickness{1}, Right{10}, Down{10}));},
+          [&errors, &token] (const auto& geo) {
+              errors << "Not implemented " << token << std::endl; }
+            }, *geo);
+      } else {
+        errors << "unidentified object type " << token << std::endl;
+      }
+    } catch (const std::exception& ex) {
+      errors << ex.what() << std::endl;
+    }
   }
-  //geometry::Polygon poly{
-  //    {geometry::Point{1, 1}, geometry::Point{1, 4}, geometry::Point{4, 5},
-  //     geometry::Point{4, 1}, geometry::Point{1, 1}},
-  //    {geometry::Point{2, 2}, geometry::Point{2, 3}, geometry::Point{3, 3},
-  //     geometry::Point{3, 2}, geometry::Point{2, 2}}};
-  //const geometry::Linestring ls{geometry::Point{0, 0}, geometry::Point{33, 3},
-  //                              geometry::Point{44, 55}};
-  //const auto ls_segments = to_segments(ls);
-  //const geometry::Point pt{1, 1};
-  //window.draw(segments_to_drawables(samples, proj, black, Thickness{3}));
-  //window.draw(segments_to_drawables(ls_segments, proj, red, Thickness{5}));
-  //window.draw(
-  //    point_to_drawables(pt, proj, black, Thickness{1}, Right{10}, Down{10}));
+  return errors.str();
 
 }
 int main(int, char **) {
@@ -90,23 +110,27 @@ int main(int, char **) {
     }
   });
   auto last_frame = std::chrono::system_clock::now();
-  std::string bla {"Hello\nBye"};
+  std::string bla {initial_scenario};
+  std::string errors;
   while (running) {
     window.handle_events();
     if (redraw) {
-      draw(window, center, scale, dims, bla);
-      // redraw = false;
+      errors = draw(window, center, scale, dims, bla);
     }
     const auto new_frame = std::chrono::system_clock::now();
-    std::cout << "Frame time: " << (new_frame - last_frame).count() / 1e6
-              << std::endl;
+    std::stringstream framestring;
+    framestring << "Frame Time: " << (new_frame - last_frame).count() / 1e6;
 
     last_frame = new_frame;
-    ImGui::Begin("Sample window"); // begin window
+    ImGui::Begin("Control");
     ImGui::GetClipboardText();
-    ImGui::InputTextMultiline("Inputthing", &bla);
+    ImGui::Text(framestring.str().c_str());
+    ImGui::Text("Shapes:");
+    ImGui::InputTextMultiline("##Shapes", &bla);
     is_window_hovered = ImGui::IsWindowHovered() or ImGui::IsWindowFocused();
-    ImGui::End(); // end window
+    ImGui::Text("Errors:");
+    ImGui::Text(errors.c_str());
+    ImGui::End();
     window.display();
   }
 

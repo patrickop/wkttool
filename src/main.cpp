@@ -3,6 +3,8 @@
 #include <wkttool/sfml_window_adapter.h>
 #include <wkttool/subsample.h>
 #include <wkttool/to_segments.h>
+#include "imgui.h"
+#include "imgui_stdlib.h"
 
 void draw(wkttool::SFMLWindowAdapter &window,
           const wkttool::geometry::Point &center, const float scale,
@@ -37,7 +39,6 @@ void draw(wkttool::SFMLWindowAdapter &window,
   window.draw(
       point_to_drawables(pt, proj, black, Thickness{1}, Right{10}, Down{10}));
 
-  window.display();
 }
 int main(int, char **) {
   using namespace wkttool;
@@ -49,21 +50,24 @@ int main(int, char **) {
   bool running = true;
   float scale = 1.0;
   bool redraw = true;
+  bool is_window_hovered = false;
   std::optional<ScreenLocation> mouse_pressed_down_at = std::nullopt;
   geometry::Point center{0, 0};
   window.connect([&running](const WindowClosed &) { running = false; });
-  window.connect([&scale, &redraw](const MouseWheelScrolled &ev) {
+  window.connect([&scale, &redraw, &is_window_hovered](const MouseWheelScrolled &ev) {
+    if (is_window_hovered) return;
     scale = scale * std::pow(1.20, -ev.amount.get());
     redraw = true;
   });
-  window.connect([&mouse_pressed_down_at](const MouseButtonDown &ev) {
+  window.connect([&mouse_pressed_down_at, &is_window_hovered](const MouseButtonDown &ev) {
     mouse_pressed_down_at = ev.location;
   });
-  window.connect([&mouse_pressed_down_at](const MouseButtonUp &ev) {
+  window.connect([&mouse_pressed_down_at, &is_window_hovered](const MouseButtonUp &ev) {
     mouse_pressed_down_at = std::nullopt;
   });
   window.connect([&mouse_pressed_down_at, &redraw, &center, &scale,
-                  &dims](const MouseMoved &ev) {
+                  &dims, &is_window_hovered](const MouseMoved &ev) {
+    if (is_window_hovered) return;
     if (mouse_pressed_down_at) {
       const auto shift = *mouse_pressed_down_at - ev.destination;
       CoordinateBoundaries bounds{LowerXBoundary{x(center) - 10.0 * scale},
@@ -80,6 +84,7 @@ int main(int, char **) {
     }
   });
   auto last_frame = std::chrono::system_clock::now();
+  std::string bla {"Hello\nBye"};
   while (running) {
     window.handle_events();
     if (redraw) {
@@ -91,6 +96,11 @@ int main(int, char **) {
               << std::endl;
 
     last_frame = new_frame;
+    ImGui::Begin("Sample window"); // begin window
+    ImGui::InputTextMultiline("Inputthing", &bla);
+    is_window_hovered = ImGui::IsWindowHovered() or ImGui::IsWindowFocused();
+    ImGui::End(); // end window
+    window.display();
   }
 
   return EXIT_SUCCESS;

@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <boost/signals2.hpp>
 #include <cmath>
+#include "imgui-SFML.h"
 
 namespace wkttool {
 
@@ -77,13 +78,21 @@ class SFMLWindowAdapter {
       :
 
         window{sf::VideoMode(dimensions.right.get(), dimensions.down.get()),
-               window_name} {}
+               window_name} {
+    ImGui::SFML::Init(window);
+               }
+  ~SFMLWindowAdapter() {
+    ImGui::SFML::Shutdown();
+    
+  }
 
   void handle_events() {
     sf::Event event;
     while (window.pollEvent(event)) {
+      ImGui::SFML::ProcessEvent(event);
       to_internal(event, window_event_sig);
     }
+    ImGui::SFML::Update(window, deltaClock.restart());
   }
 
   template <typename T>
@@ -106,10 +115,15 @@ class SFMLWindowAdapter {
 
   void clear(const Color &color) { window.clear(to_sfml(color)); }
 
-  void display() { window.display(); }
+  void display() { 
+    ImGui::SFML::Render(window);
+    window.display(); 
+  }
+
 
  private:
   sf::RenderWindow window;
+  sf::Clock deltaClock;
   VariantSignal<WindowEvent> window_event_sig;
 };
 

@@ -14,11 +14,94 @@ MULTILINESTRING((-1 2, -2 1),(7 7, 8 10));\n\
 MULTIPOLYGON(((0 0,0 -7,-4 -2,-2 0,0 0)), ((5 -2, 6 -3, 4 -2.5, 5 -2)))";
 template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 template<class... Ts> overload(Ts...) -> overload<Ts...>;
-std::string draw(wkttool::SFMLWindowAdapter &window,
-          const wkttool::geometry::Point &center, const float scale,
-          const wkttool::ScreenDimensions &dims, const std::string& shapes) {
+
+struct Shape {
+  std::string label;
+  wkttool::geometry::Geometry geometry;
+  wkttool::Thickness thickness;
+  wkttool::Color color;
+  bool hovered;
+  bool deleted;
+};
+
+struct BadLine {
+  std::string error;
+  std::string line;
+};
+
+struct ImportResult {
+  std::vector<Shape> shapes;
+  std::vector<BadLine> bad_lines;
+};
+
+std::string generate_label() {
+  static int counter = 0;
+  return "shape" + std::to_string(counter++);
+}
+
+wkttool::Color random_color() {
+  return wkttool::Color{
+    wkttool::Red{static_cast<uint8_t>(rand()%255)},
+    wkttool::Green{static_cast<uint8_t>(rand()%255)},
+    wkttool::Blue{static_cast<uint8_t>(rand()%255)}};
+}
+
+ImportResult import_shapes(const std::string& raw) {
   using namespace wkttool;
-  std::stringstream errors;
+  ImportResult result;
+  const auto tokens = tokenize(raw);
+  for (const auto& token : tokens) {
+    if (token.empty()) continue;
+    try {
+      const auto geo = parse(token);
+      if (geo) {
+        result.shapes.push_back(Shape{generate_label(), *geo, Thickness{4}, random_color()});
+      } else {
+        result.bad_lines.push_back({"unidentified object type " + token, token});
+      }
+    } catch (const std::exception& ex) {
+        std::stringstream error;
+        error << "Exception: " << ex.what() << " for " << token;
+        result.bad_lines.push_back({error.str(), token});
+    }
+  }
+  return result;
+}
+
+void draw_shapes(const std::vector<Shape> shapes, wkttool::SFMLWindowAdapter& window,
+wkttool::ScreenProjection& proj) {
+  using namespace wkttool;
+  for (const auto& shape : shapes) {
+        const Thickness actual_thickness{
+          shape.thickness.get() * (shape.hovered ? 2 : 1)};
+        std::visit(overload{
+          [&] (const geometry::Polygon& poly) {
+              const auto segments =  to_segments(poly);
+              window.draw(segments_to_drawables(segments, proj, shape.color, actual_thickness));},
+          [&] (const geometry::MultiPolygon& polys) {
+              const auto segments =  to_segments(polys);
+              window.draw(segments_to_drawables(segments, proj, shape.color, actual_thickness));},
+          [&] (const geometry::MultiLinestring& lss) {
+              const auto segments =  to_segments(lss);
+              window.draw(segments_to_drawables(segments, proj, shape.color, actual_thickness));},
+          [&] (const geometry::Linestring& ls) {
+              const auto segments =  to_segments(ls);
+              window.draw(segments_to_drawables(segments, proj, shape.color, actual_thickness));},
+          [&] (const geometry::Point& point) {
+              window.draw(point_to_drawables(
+              point, proj, shape.color, actual_thickness, Right{10}, Down{10}));},
+          [&] (const geometry::MultiPoint& points) {
+              window.draw(points_to_drawables(
+              points, proj, shape.color, actual_thickness, Right{10}, Down{10}));}
+            }, shape.geometry);
+
+  }
+}
+
+void draw(wkttool::SFMLWindowAdapter &window,
+          const wkttool::geometry::Point &center, const float scale,
+          const wkttool::ScreenDimensions &dims, const std::vector<Shape>& shapes) {
+  using namespace wkttool;
   window.clear(white);
   CoordinateBoundaries bounds{LowerXBoundary{x(center) - 10.0 * scale},
                               LowerYBoundary{y(center) - 10.0 * scale},
@@ -29,41 +112,7 @@ std::string draw(wkttool::SFMLWindowAdapter &window,
   const auto axes = make_axes(bounds);
   window.draw(segments_to_drawables(grid, proj, grey, Thickness{1}));
   window.draw(segments_to_drawables(axes, proj, black, Thickness{2}));
-  const auto tokens = tokenize(shapes);
-  for (const auto& token : tokens) {
-    try {
-      const auto geo = parse(token);
-      if (geo) {
-        std::visit(overload{
-          [&proj, &window] (const geometry::Polygon& poly) {
-              const auto segments =  to_segments(poly);
-              window.draw(segments_to_drawables(segments, proj, black, Thickness{3}));},
-          [&proj, &window] (const geometry::MultiPolygon& polys) {
-              const auto segments =  to_segments(polys);
-              window.draw(segments_to_drawables(segments, proj, black, Thickness{3}));},
-          [&proj, &window] (const geometry::MultiLinestring& lss) {
-              const auto segments =  to_segments(lss);
-              window.draw(segments_to_drawables(segments, proj, black, Thickness{3}));},
-          [&proj, &window] (const geometry::Linestring& ls) {
-              const auto segments =  to_segments(ls);
-              window.draw(segments_to_drawables(segments, proj, black, Thickness{3}));},
-          [&proj, &window] (const geometry::Point& point) {
-              window.draw(point_to_drawables(
-              point, proj, black, Thickness{1}, Right{10}, Down{10}));},
-          [&proj, &window] (const geometry::MultiPoint& points) {
-              window.draw(points_to_drawables(
-              points, proj, black, Thickness{1}, Right{10}, Down{10}));},
-          [&errors, &token] (const auto& geo) {
-              errors << "Not implemented " << token << std::endl; }
-            }, *geo);
-      } else {
-        errors << "unidentified object type " << token << std::endl;
-      }
-    } catch (const std::exception& ex) {
-      errors << ex.what() << std::endl;
-    }
-  }
-  return errors.str();
+  draw_shapes(shapes, window, proj);
 
 }
 int main(int, char **) {
@@ -110,13 +159,12 @@ int main(int, char **) {
     }
   });
   auto last_frame = std::chrono::system_clock::now();
-  std::string bla {initial_scenario};
+  std::string editor {initial_scenario};
   std::string errors;
+  std::vector<Shape> shapes;
   while (running) {
     window.handle_events();
-    if (redraw) {
-      errors = draw(window, center, scale, dims, bla);
-    }
+    draw(window, center, scale, dims, shapes);
     const auto new_frame = std::chrono::system_clock::now();
     std::stringstream framestring;
     framestring << "Frame Time: " << (new_frame - last_frame).count() / 1e6;
@@ -125,11 +173,46 @@ int main(int, char **) {
     ImGui::Begin("Control");
     ImGui::GetClipboardText();
     ImGui::Text(framestring.str().c_str());
-    ImGui::Text("Shapes:");
-    ImGui::InputTextMultiline("##Shapes", &bla);
+    ImGui::InputTextMultiline("##Editor", &editor);
     is_window_hovered = ImGui::IsWindowHovered() or ImGui::IsWindowFocused();
+    if (ImGui::Button("Import")) {
+      const auto result = import_shapes(editor);
+      editor.clear();
+      errors.clear();
+      std::copy(std::begin(result.shapes), std::end(result.shapes), 
+                std::back_inserter(shapes));
+      std::stringstream errors_stream;
+      std::stringstream editor_stream;
+      for (const auto& bad_line : result.bad_lines){
+        errors_stream << bad_line.error << "\n";
+        editor_stream << bad_line.line << ";\n";
+      }
+      editor = editor_stream.str();
+      errors = errors_stream.str();
+    }
     ImGui::Text("Errors:");
     ImGui::Text(errors.c_str());
+    for (auto& shape : shapes) {
+      ImGui::Text(shape.label.c_str());
+      if (ImGui::IsItemHovered()) {
+        shape.hovered = true;
+      } else {
+        shape.hovered = false;
+      }
+      ImGui::SameLine();
+      if (ImGui::Button((std::string{"Delete##"} + shape.label).c_str())) {
+        std::cout << "Deleted" << std::endl;
+        shape.deleted = true;
+      }
+    }
+    auto it = std::begin(shapes);
+    while (it != std::end(shapes))
+    {
+      if (it->deleted)
+        it = shapes.erase(it);
+      else
+        ++it;
+    }
     ImGui::End();
     window.display();
   }

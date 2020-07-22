@@ -22,6 +22,7 @@ struct Shape {
   wkttool::Color color;
   bool hovered;
   bool deleted;
+  bool editing;
 };
 
 struct BadLine {
@@ -193,25 +194,39 @@ int main(int, char **) {
     ImGui::Text("Errors:");
     ImGui::Text(errors.c_str());
     for (auto& shape : shapes) {
+      ImGui::BeginGroup();
       ImGui::Text(shape.label.c_str());
+      ImGui::SameLine();
+      if (ImGui::Button((std::string{"Delete##"} + shape.label).c_str())) {
+        shape.deleted = true;
+      }
+      ImGui::SameLine();
+      if (ImGui::Button((std::string{"Edit##"} + shape.label).c_str())) {
+        shape.editing = true;
+      }
+      ImGui::EndGroup();
       if (ImGui::IsItemHovered()) {
         shape.hovered = true;
       } else {
         shape.hovered = false;
       }
-      ImGui::SameLine();
-      if (ImGui::Button((std::string{"Delete##"} + shape.label).c_str())) {
-        std::cout << "Deleted" << std::endl;
-        shape.deleted = true;
-      }
     }
     auto it = std::begin(shapes);
     while (it != std::end(shapes))
     {
-      if (it->deleted)
+      if (it->deleted){
         it = shapes.erase(it);
-      else
+      } else if (it->editing) {
+        std::stringstream as_wkt;
+        as_wkt << ";\n";
+        std::visit( [&as_wkt](const auto& g) {
+            as_wkt << boost::geometry::wkt(g);}, 
+          it->geometry);
+        editor += as_wkt.str();
+        it = shapes.erase(it);
+      }else{
         ++it;
+        }
     }
     ImGui::End();
     window.display();

@@ -4,6 +4,7 @@
 #include <wkttool/subsample.h>
 #include <wkttool/to_segments.h>
 #include <wkttool/parse_geometry.h>
+#include <wkttool/label_position.h>
 #include <imgui.h>
 #include <imgui_stdlib.h>
 constexpr unsigned max_gridlines = 50;
@@ -14,8 +15,8 @@ POLYGON((0 0,0 7,4 2,2 0,0 0));\n\
 MULTIPOINT(1.5 2.5, -3 -2);\n\
 MULTILINESTRING((-1 2, -2 1),(7 7, 8 10));\n\
 MULTIPOLYGON(((0 0,0 -7,-4 -2,-2 0,0 0)), ((5 -2, 6 -3, 4 -2.5, 5 -2)))";
-template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
-template<class... Ts> overload(Ts...) -> overload<Ts...>;
+//template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+//template<class... Ts> overload(Ts...) -> overload<Ts...>;
 using ImguiColor = std::array<float, 3>;
 struct Shape {
   std::string label;
@@ -135,7 +136,7 @@ wkttool::ScreenProjection& proj) {
               window.draw(points_to_drawables(
               points, proj, to_color(shape.imgui_color), actual_thickness, Right{10}, Down{10}));}
             }, shape.geometry);
-
+    window.draw(text_to_drawable(shape.label, label_position(shape.geometry), proj, black, PointSize{22}));
   }
 }
 wkttool::CoordinateBoundaries get_bounds(const GuiState& gui_state) {

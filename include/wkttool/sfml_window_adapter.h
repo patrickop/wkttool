@@ -8,7 +8,7 @@
 #include "imgui-SFML.h"
 
 namespace wkttool {
-
+constexpr auto font_name = "/usr/share/fonts/TTF/arial.ttf";
 template <typename Listener>
 void to_internal(const sf::Event &event, Listener &listener) {
   if (event.type == sf::Event::Closed) {
@@ -70,6 +70,29 @@ sf::RectangleShape to_sfml(const drawable::Segment &segment) {
   result.setFillColor(to_sfml(segment.color));
   return result;
 }
+
+
+sf::Text to_sfml(const drawable::TextLabel &text) {
+  static bool first = true;
+  static sf::Font font;
+  if (first) {
+    if (!font.loadFromFile(font_name))
+    {
+        std::cerr << "Error loading the font: " << font_name << ". Text will not display correctly" << std::endl;
+    }
+    first = false;
+  }
+  sf::Text result;
+  result.setFont(font);
+  result.setString(text.text);
+  result.setPosition(sf::Vector2f{
+      static_cast<float>(text.location.right.get()),
+      static_cast<float>(text.location.down.get())});
+  result.setFillColor(to_sfml(text.color));
+  result.setCharacterSize(text.size.get());
+  return result;
+}
+
 
 class SFMLWindowAdapter {
  public:

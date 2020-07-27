@@ -65,5 +65,13 @@ std::vector<drawable::Segment> points_to_drawables(const geometry::MultiPoint& p
 
 }
 
+template <typename Projection>
+drawable::TextLabel text_to_drawable(const std::string& text, const geometry::Point& location,
+                                                  const Projection& projector,
+                                                  const Color& color, const PointSize& size){
+  return drawable::TextLabel{color, projector.to_screen(location),text, size};
+
+}
+
 
 }  // namespace wkttool

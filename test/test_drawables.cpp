@@ -14,6 +14,11 @@ class SimpleProjection {
     return ScreenLocationPair{ScreenLocation{Right{x1}, Down{y1}},
                               ScreenLocation{Right{x2}, Down{y2}}};
   }
+  ScreenLocation to_screen(const geometry::Point& point) const {
+    const auto x1 = static_cast<int>(x(point));
+    const auto y1 = static_cast<int>(y(point));
+    return ScreenLocation{Right{x1}, Down{y1}};
+  }
   geometry::Point translate(const geometry::Point& base,
                             const ScreenLocationDifference& difference) const {
     const double x_val = x(base) + static_cast<double>(difference.right.get());
@@ -82,6 +87,20 @@ TEST(TestDrawable, MultiPoint) {
                                     Thickness{2},
                                     {ScreenLocation{Right{10}, Down{14}},
                                      ScreenLocation{Right{14}, Down{12}}}}));
+}
+
+TEST(TestDrawable, Text) {
+  using namespace geometry;
+  const auto in = "Hello";
+  SimpleProjection proj;
+  const auto result = text_to_drawable(in, geometry::Point{1,2}, proj, white, PointSize{ 22});
+  const ScreenLocation expected_loc {Right{1}, Down{2}};
+  const PointSize expected_size{22};
+  EXPECT_EQ(result.color, white);
+  EXPECT_EQ(result.location, expected_loc);
+  EXPECT_EQ(result.text, "Hello");
+  // TODO
+  // EXPECT_EQ(result.size, expected_size);
 }
 
 int main(int argc, char** argv) {

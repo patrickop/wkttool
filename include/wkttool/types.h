@@ -49,6 +49,8 @@ using UpperXBoundary = fluent::NamedType<double, struct UpperXBoundaryTag>;
 using UpperYBoundary = fluent::NamedType<double, struct UpperYBoundaryTag>;
 using Thickness =
     fluent::NamedType<double, struct ThicknessTag, fluent::Comparable>;
+using PointSize =
+    fluent::NamedType<unsigned int, struct PointSizeTag, fluent::Comparable>;
 using Red = fluent::NamedType<uint8_t, struct RedTag, fluent::Comparable>;
 using Green = fluent::NamedType<uint8_t, struct GreenTag, fluent::Comparable>;
 using Blue = fluent::NamedType<uint8_t, struct BlueTag, fluent::Comparable>;
@@ -151,6 +153,12 @@ inline constexpr Color grey{Red{200}, Green{200}, Blue{200}};
 inline constexpr Color red{Red{255}, Green{0}, Blue{0}};
 
 namespace drawable {
+struct TextLabel {
+  Color color;
+  ScreenLocation location;
+  std::string text;
+  PointSize size;
+};
 struct Segment {
   Color color;
   Thickness thickness;

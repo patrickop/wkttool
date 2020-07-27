@@ -39,3 +39,8 @@ add_executable(test_parse_geometry test_parse_geometry.cpp)
 target_link_libraries(test_parse_geometry wkttool_lib ${CONAN_LIBS})
 add_test(NAME test_parse_geometry COMMAND test_parse_geometry
           WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_executable(test_label_position test_label_position.cpp)
+target_link_libraries(test_label_position wkttool_lib ${CONAN_LIBS})
+add_test(NAME test_label_position COMMAND test_label_position
+          WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

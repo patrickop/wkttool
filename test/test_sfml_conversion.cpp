@@ -141,10 +141,18 @@ TEST(TestSFMLConversion, ConvertsMouseWheelScrolledEvent) {
   ASSERT_NEAR(std::get<MouseWheelScrolled>(*listener.event).amount.get(), 1.6,
               1e-5);
 }
-struct MouseWheelScrolled {
-  ScreenLocation position;
-  MouseWheelScollAmount amount;
-};
+TEST(TestSFMLConversion, ConvertsTextLabel) {
+  drawable::TextLabel label {white, ScreenLocation{Right{1}, Down{2}}, "Hello", PointSize{33}};
+  const auto result = to_sfml(label);
+  ASSERT_EQ(result.getString(), "Hello");
+  ASSERT_NEAR(result.getPosition().x, 1, 1e-5);
+  ASSERT_NEAR(result.getPosition().y, 2, 1e-5);
+  ASSERT_NEAR(result.getCharacterSize(), 33, 1e-5);
+  EXPECT_EQ(result.getFillColor().r, 255);
+  EXPECT_EQ(result.getFillColor().g, 255);
+  EXPECT_EQ(result.getFillColor().b, 255);
+  EXPECT_EQ(result.getFillColor().a, 255);
+}
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

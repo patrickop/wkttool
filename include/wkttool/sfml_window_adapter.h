@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <boost/signals2.hpp>
 #include <cmath>
+
 #include "imgui-SFML.h"
 
 namespace wkttool {
@@ -71,28 +72,26 @@ sf::RectangleShape to_sfml(const drawable::Segment &segment) {
   return result;
 }
 
-
 sf::Text to_sfml(const drawable::TextLabel &text) {
   static bool first = true;
   static sf::Font font;
   if (first) {
-    if (!font.loadFromFile(font_name))
-    {
-        std::cerr << "Error loading the font: " << font_name << ". Text will not display correctly" << std::endl;
+    if (!font.loadFromFile(font_name)) {
+      std::cerr << "Error loading the font: " << font_name
+                << ". Text will not display correctly" << std::endl;
     }
     first = false;
   }
   sf::Text result;
   result.setFont(font);
   result.setString(text.text);
-  result.setPosition(sf::Vector2f{
-      static_cast<float>(text.location.right.get()),
-      static_cast<float>(text.location.down.get())});
+  result.setPosition(
+      sf::Vector2f{static_cast<float>(text.location.right.get()),
+                   static_cast<float>(text.location.down.get())});
   result.setFillColor(to_sfml(text.color));
   result.setCharacterSize(text.size.get());
   return result;
 }
-
 
 class SFMLWindowAdapter {
  public:
@@ -103,11 +102,8 @@ class SFMLWindowAdapter {
         window{sf::VideoMode(dimensions.right.get(), dimensions.down.get()),
                window_name} {
     ImGui::SFML::Init(window);
-               }
-  ~SFMLWindowAdapter() {
-    ImGui::SFML::Shutdown();
-    
   }
+  ~SFMLWindowAdapter() { ImGui::SFML::Shutdown(); }
 
   void handle_events() {
     sf::Event event;
@@ -138,11 +134,10 @@ class SFMLWindowAdapter {
 
   void clear(const Color &color) { window.clear(to_sfml(color)); }
 
-  void display() { 
+  void display() {
     ImGui::SFML::Render(window);
-    window.display(); 
+    window.display();
   }
-
 
  private:
   sf::RenderWindow window;

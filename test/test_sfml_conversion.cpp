@@ -142,7 +142,8 @@ TEST(TestSFMLConversion, ConvertsMouseWheelScrolledEvent) {
               1e-5);
 }
 TEST(TestSFMLConversion, ConvertsTextLabel) {
-  drawable::TextLabel label {white, ScreenLocation{Right{1}, Down{2}}, "Hello", PointSize{33}};
+  drawable::TextLabel label{white, ScreenLocation{Right{1}, Down{2}}, "Hello",
+                            PointSize{33}};
   const auto result = to_sfml(label);
   ASSERT_EQ(result.getString(), "Hello");
   ASSERT_NEAR(result.getPosition().x, 1, 1e-5);

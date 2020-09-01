@@ -42,6 +42,19 @@ class ScreenProjection {
     return ScreenLocation{right, down};
   }
 
+  geometry::Point to_point(const ScreenLocation &location) const {
+    const auto x_per_point =
+        (boundaries.upper_x.get() - boundaries.lower_x.get()) /
+        static_cast<double>(dimensions.right.get());
+    const auto y_per_point =
+        (boundaries.upper_y.get() - boundaries.lower_y.get()) /
+        static_cast<double>(dimensions.down.get());
+
+    return geometry::Point{
+        boundaries.lower_x.get() + x_per_point * location.right.get(),
+        boundaries.upper_y.get() - y_per_point * location.down.get()};
+  }
+
   ScreenLocationPair to_screen(const geometry::Segment &segment) const {
     return ScreenLocationPair{to_screen(std::get<0>(segment)),
                               to_screen(std::get<1>(segment))};

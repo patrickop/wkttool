@@ -36,11 +36,12 @@ std::vector<geometry::Segment> to_segments(const geometry::Polygon& polygon) {
          rng::to<std::vector<geometry::Segment>>;
 }
 
-std::vector<geometry::Segment> to_segments(const geometry::MultiPolygon& polygons) {
+std::vector<geometry::Segment> to_segments(
+    const geometry::MultiPolygon& polygons) {
   namespace rv = ranges::views;
   namespace rng = ranges;
-  const auto poly_to_segments = [] (const auto& p ) {return to_segments(p);};
-  return polygons | rv::transform(poly_to_segments) | rng::action::join | 
+  const auto poly_to_segments = [](const auto& p) { return to_segments(p); };
+  return polygons | rv::transform(poly_to_segments) | rng::action::join |
          rng::to<std::vector<geometry::Segment>>;
 }
 
@@ -70,11 +71,12 @@ std::vector<geometry::Segment> to_segments(
   return detail::connect_by_segments(linestring);
 }
 
-std::vector<geometry::Segment> to_segments(const geometry::MultiLinestring& lss) {
+std::vector<geometry::Segment> to_segments(
+    const geometry::MultiLinestring& lss) {
   namespace rv = ranges::views;
   namespace rng = ranges;
-  const auto ls_to_segments = [] (const auto& ls ) {return to_segments(ls);};
-  return lss | rv::transform(ls_to_segments) | rng::action::join | 
+  const auto ls_to_segments = [](const auto& ls) { return to_segments(ls); };
+  return lss | rv::transform(ls_to_segments) | rng::action::join |
          rng::to<std::vector<geometry::Segment>>;
 }
 

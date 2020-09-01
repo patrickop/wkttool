@@ -16,13 +16,8 @@ using MultiPoint = boost::geometry::model::multi_point<Point>;
 using MultiPolygon = boost::geometry::model::multi_polygon<Polygon>;
 using MultiLinestring = boost::geometry::model::multi_linestring<Linestring>;
 
-using Geometry = std::variant<
-  Point,
-  Linestring,
-  Polygon,
-  MultiPoint,
-  MultiLinestring,
-  MultiPolygon>;
+using Geometry = std::variant<Point, Linestring, Polygon, MultiPoint,
+                              MultiLinestring, MultiPolygon>;
 
 struct LabeledGeometry {
   std::optional<std::string> label;

@@ -1,6 +1,8 @@
 #include <gmock/gmock.h>
 #include <wkttool/screen_projection.h>
 
+#include "common.h"
+
 namespace boost::geometry::model {
 std::ostream &operator<<(std::ostream &os,
                          const wkttool::geometry::Point &geo) {
@@ -10,10 +12,6 @@ std::ostream &operator<<(std::ostream &os,
 }  // namespace boost::geometry::model
 
 using namespace wkttool;
-MATCHER_P2(Near, expected, tolerance, "") {
-  namespace bg = boost::geometry;
-  return bg::distance(expected, arg) < tolerance;
-}
 
 TEST(TestScreenProjection, ProjectsPointInsideScreen) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -128,7 +126,7 @@ TEST(TestScreenProjection, ProjectsPartiallyCoveredSegmentOnePointOnEdge) {
 //  geometry::Point expected_point{-0.8, -0.3};
 //  const auto p = projection.to_point(loc);
 //
-//  EXPECT_THAT(p, Near(expected_point, 1e-5));
+//  EXPECT_THAT(p, PointNear(expected_point, 1e-5));
 //}
 
 TEST(TestScreenProjection, TranslatesPoint) {
@@ -142,8 +140,9 @@ TEST(TestScreenProjection, TranslatesPoint) {
   geometry::Point expected_point{60, -20};
   const auto p = projection.translate(base, difference);
 
-  EXPECT_THAT(p, Near(expected_point, 1e-5));
+  EXPECT_THAT(p, PointNear(expected_point, 1e-5));
 }
+
 TEST(TestScreenProjection, TranslatesPointNegativeDifference) {
   ScreenDimensions dim{Right{200}, Down{200}};
   CoordinateBoundaries bound{LowerXBoundary{-100.0}, LowerYBoundary{-100.0},
@@ -155,7 +154,7 @@ TEST(TestScreenProjection, TranslatesPointNegativeDifference) {
   geometry::Point expected_point{-20, 80};
   const auto p = projection.translate(base, difference);
 
-  EXPECT_THAT(p, Near(expected_point, 1e-5));
+  EXPECT_THAT(p, PointNear(expected_point, 1e-5));
 }
 TEST(TestScreenProjection, TranslatesPointAtHalfRatio) {
   ScreenDimensions dim{Right{200}, Down{200}};
@@ -168,7 +167,18 @@ TEST(TestScreenProjection, TranslatesPointAtHalfRatio) {
   geometry::Point expected_point{30, -10};
   const auto p = projection.translate(base, difference);
 
-  EXPECT_THAT(p, Near(expected_point, 1e-5));
+  EXPECT_THAT(p, PointNear(expected_point, 1e-5));
+}
+TEST(TestScreenProjection, ConvertsToPoint) {
+  ScreenDimensions dim{Right{200}, Down{200}};
+  CoordinateBoundaries bound{LowerXBoundary{-100.0}, LowerYBoundary{-100.0},
+                             UpperXBoundary{100.0}, UpperYBoundary{100.0}};
+  ScreenProjection projection{dim, bound};
+  ScreenLocation loc{Right{150}, Down{80}};
+  geometry::Point expected_point{50, 20};
+  const auto sp = projection.to_point(loc);
+
+  EXPECT_THAT(sp, PointNear(expected_point, 1e-5));
 }
 
 int main(int argc, char **argv) {

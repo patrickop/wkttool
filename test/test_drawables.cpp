@@ -65,7 +65,7 @@ TEST(TestDrawable, Point) {
 
 TEST(TestDrawable, MultiPoint) {
   using namespace geometry;
-  MultiPoint pts{{2, 3},{12, 13}};
+  MultiPoint pts{{2, 3}, {12, 13}};
   SimpleProjection proj;
   const auto result =
       points_to_drawables(pts, proj, white, Thickness{2}, Right{2}, Down{1});
@@ -93,8 +93,9 @@ TEST(TestDrawable, Text) {
   using namespace geometry;
   const auto in = "Hello";
   SimpleProjection proj;
-  const auto result = text_to_drawable(in, geometry::Point{1,2}, proj, white, PointSize{ 22});
-  const ScreenLocation expected_loc {Right{1}, Down{2}};
+  const auto result =
+      text_to_drawable(in, geometry::Point{1, 2}, proj, white, PointSize{22});
+  const ScreenLocation expected_loc{Right{1}, Down{2}};
   const PointSize expected_size{22};
   EXPECT_EQ(result.color, white);
   EXPECT_EQ(result.location, expected_loc);

@@ -4,22 +4,17 @@
 
 using namespace wkttool;
 using ::testing::_;
-using ::testing::UnorderedElementsAre;
-using ::testing::Optional;
-using ::testing::VariantWith;
-using ::testing::Types;
-using ::testing::Pair;
 using ::testing::Eq;
+using ::testing::Optional;
+using ::testing::Pair;
+using ::testing::Types;
+using ::testing::UnorderedElementsAre;
+using ::testing::VariantWith;
 template <typename T>
-class TestParseGeometry : public ::testing::Test {
-};
-using ParsedTypes = Types<
-  geometry::Point,
-  geometry::Linestring,
-  geometry::Polygon,
-  geometry::MultiPoint,
-  geometry::MultiLinestring,
-  geometry::MultiPolygon>;
+class TestParseGeometry : public ::testing::Test {};
+using ParsedTypes = Types<geometry::Point, geometry::Linestring,
+                          geometry::Polygon, geometry::MultiPoint,
+                          geometry::MultiLinestring, geometry::MultiPolygon>;
 TYPED_TEST_SUITE(TestParseGeometry, ParsedTypes);
 
 // We trust boost geometry to parse the values correctly
@@ -30,44 +25,27 @@ TYPED_TEST(TestParseGeometry, PicksCorrectType) {
   const auto result = parse_geometry(wkt_rep.str());
   EXPECT_THAT(result, Optional(VariantWith<TypeParam>(_)));
 }
-TEST(TestTokenizer, TestSplits){
+TEST(TestTokenizer, TestSplits) {
   const std::string raw = "A;B";
-  EXPECT_THAT(tokenize(raw),
-      UnorderedElementsAre(
-        "A",
-        "B"));
-
+  EXPECT_THAT(tokenize(raw), UnorderedElementsAre("A", "B"));
 }
-TEST(TestTokenizer, TestRemovesNewlines){
+TEST(TestTokenizer, TestRemovesNewlines) {
   const std::string raw = "A;\nB\n1";
-  EXPECT_THAT(tokenize(raw),
-      UnorderedElementsAre(
-        "A",
-        "B1"));
-
+  EXPECT_THAT(tokenize(raw), UnorderedElementsAre("A", "B1"));
 }
-TEST(TestTokenizer, TestRemovesTrailingLeadingWhitespace){
+TEST(TestTokenizer, TestRemovesTrailingLeadingWhitespace) {
   const std::string raw = "  A  ; B 1  ";
-  EXPECT_THAT(tokenize(raw),
-      UnorderedElementsAre(
-        "A",
-        "B 1"));
-
+  EXPECT_THAT(tokenize(raw), UnorderedElementsAre("A", "B 1"));
 }
 TEST(TestParse, TestExtractsLabel) {
   EXPECT_THAT(parse("mylabel:POINT()"),
-      Optional(
-        Pair(
-          Optional(std::string{"mylabel"}),
-          VariantWith<geometry::Point>(_))));
+              Optional(Pair(Optional(std::string{"mylabel"}),
+                            VariantWith<geometry::Point>(_))));
 }
 
 TEST(TestParse, TestNoLabel) {
   EXPECT_THAT(parse("POINT()"),
-      Optional(
-        Pair(
-          std::nullopt,
-          VariantWith<geometry::Point>(_))));
+              Optional(Pair(std::nullopt, VariantWith<geometry::Point>(_))));
 }
 TEST(TestParse, TestNoValidGeoNoLabel) {
   EXPECT_THAT(parse("ODDTHING()"), Eq(std::nullopt));

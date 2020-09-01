@@ -50,28 +50,27 @@ std::vector<drawable::Segment> point_to_drawables(const geometry::Point& point,
 }
 
 template <typename Projection>
-std::vector<drawable::Segment> points_to_drawables(const geometry::MultiPoint& points,
-                                                  const Projection& projector,
-                                                  const Color& lines_color,
-                                                  const Thickness& thickness,
-                                                  const Right& right_leg,
-                                                  const Down& down_leg) {
+std::vector<drawable::Segment> points_to_drawables(
+    const geometry::MultiPoint& points, const Projection& projector,
+    const Color& lines_color, const Thickness& thickness,
+    const Right& right_leg, const Down& down_leg) {
   namespace rv = ranges::views;
   namespace rng = ranges;
-  const auto to_drawables = [&] (const auto& pt) {
-    return point_to_drawables(pt, projector, lines_color, thickness, right_leg, down_leg); };
-  return points | rv::transform(to_drawables) | rng::action::join | 
+  const auto to_drawables = [&](const auto& pt) {
+    return point_to_drawables(pt, projector, lines_color, thickness, right_leg,
+                              down_leg);
+  };
+  return points | rv::transform(to_drawables) | rng::action::join |
          rng::to<std::vector<drawable::Segment>>;
-
 }
 
 template <typename Projection>
-drawable::TextLabel text_to_drawable(const std::string& text, const geometry::Point& location,
-                                                  const Projection& projector,
-                                                  const Color& color, const PointSize& size){
-  return drawable::TextLabel{color, projector.to_screen(location),text, size};
-
+drawable::TextLabel text_to_drawable(const std::string& text,
+                                     const geometry::Point& location,
+                                     const Projection& projector,
+                                     const Color& color,
+                                     const PointSize& size) {
+  return drawable::TextLabel{color, projector.to_screen(location), text, size};
 }
-
 
 }  // namespace wkttool

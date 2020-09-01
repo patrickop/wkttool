@@ -4,14 +4,15 @@
 #include <optional>
 
 namespace wkttool {
+
   template <typename T>
-  T read_as(const std::string& source) {
+    T read_as(const std::string& source) {
       T t;
       boost::geometry::read_wkt(source, t);
       return t;
     }
 
-  std::optional<geometry::Geometry> parse(const std::string& source) {
+  std::optional<geometry::Geometry> parse_geometry(const std::string& source) {
     try {
       if (boost::algorithm::starts_with(boost::algorithm::to_lower_copy(source), "point")) {
         return read_as<geometry::Point>(source);
@@ -36,6 +37,27 @@ namespace wkttool {
     }
     return std::nullopt;
   }
+
+  using ParsedLine = std::pair<std::optional<std::string>, geometry::Geometry>;
+
+  std::optional<ParsedLine> parse(const std::string& source) {
+    std::vector<std::string> result;
+    boost::algorithm::split(result, source, boost::algorithm::is_any_of(":"));
+    const auto geo = parse_geometry(
+        result.size() == 1 ?
+        result[0] :
+        result[1]);
+    std::optional<std::string> label = std::nullopt;
+    if (result.size() > 1) {
+      label = result[0];
+    }
+    if (geo) {
+      return ParsedLine{label, *geo};
+    } else {
+      return std::nullopt;
+    }
+  }
+
   std::vector<std::string> tokenize(const std::string& raw) {
     std::vector<std::string> result;
     std::string working{raw};

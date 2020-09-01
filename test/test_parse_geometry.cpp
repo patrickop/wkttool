@@ -8,6 +8,8 @@ using ::testing::UnorderedElementsAre;
 using ::testing::Optional;
 using ::testing::VariantWith;
 using ::testing::Types;
+using ::testing::Pair;
+using ::testing::Eq;
 template <typename T>
 class TestParseGeometry : public ::testing::Test {
 };
@@ -25,7 +27,7 @@ TYPED_TEST(TestParseGeometry, PicksCorrectType) {
   const TypeParam original{};
   std::stringstream wkt_rep;
   wkt_rep << boost::geometry::wkt(original);
-  const auto result = parse(wkt_rep.str());
+  const auto result = parse_geometry(wkt_rep.str());
   EXPECT_THAT(result, Optional(VariantWith<TypeParam>(_)));
 }
 TEST(TestTokenizer, TestSplits){
@@ -52,6 +54,28 @@ TEST(TestTokenizer, TestRemovesTrailingLeadingWhitespace){
         "B 1"));
 
 }
+TEST(TestParse, TestExtractsLabel) {
+  EXPECT_THAT(parse("mylabel:POINT()"),
+      Optional(
+        Pair(
+          Optional(std::string{"mylabel"}),
+          VariantWith<geometry::Point>(_))));
+}
+
+TEST(TestParse, TestNoLabel) {
+  EXPECT_THAT(parse("POINT()"),
+      Optional(
+        Pair(
+          std::nullopt,
+          VariantWith<geometry::Point>(_))));
+}
+TEST(TestParse, TestNoValidGeoNoLabel) {
+  EXPECT_THAT(parse("ODDTHING()"), Eq(std::nullopt));
+}
+TEST(TestParse, TestNoValidGeo) {
+  EXPECT_THAT(parse("mylabel:ODDTHING()"), Eq(std::nullopt));
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

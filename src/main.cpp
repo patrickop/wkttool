@@ -49,6 +49,7 @@ struct GuiState {
   float coverage_y = 10;
   float grid_x = 2;
   float grid_y = 2;
+  int label_size = 15;
   std::string editor_content = initial_scenario;
   std::vector<std::string> errors;
 };
@@ -95,9 +96,10 @@ ImportResult import_shapes(const std::string& raw) {
   for (const auto& token : tokens) {
     if (token.empty()) continue;
     try {
-      const auto geo = parse(token);
-      if (geo) {
-        result.shapes.push_back(Shape{generate_label(), *geo, Thickness{4}, false, false, false, random_imgui_color()});
+      const auto parsed_line = parse(token);
+      if (parsed_line) {
+        const auto label = parsed_line->first ? *parsed_line->first : generate_label();
+        result.shapes.push_back(Shape{label, parsed_line->second, Thickness{4}, false, false, false, random_imgui_color()});
       } else {
         result.bad_lines.push_back({"unidentified object type " + token, token});
       }
@@ -111,7 +113,7 @@ ImportResult import_shapes(const std::string& raw) {
 }
 
 void draw_shapes(const std::vector<Shape> shapes, wkttool::SFMLWindowAdapter& window,
-wkttool::ScreenProjection& proj) {
+const wkttool::ScreenProjection& proj, const wkttool::PointSize& font_size) {
   using namespace wkttool;
   for (const auto& shape : shapes) {
         const Thickness actual_thickness{
@@ -136,7 +138,7 @@ wkttool::ScreenProjection& proj) {
               window.draw(points_to_drawables(
               points, proj, to_color(shape.imgui_color), actual_thickness, Right{10}, Down{10}));}
             }, shape.geometry);
-    window.draw(text_to_drawable(shape.label, label_position(shape.geometry), proj, black, PointSize{22}));
+    window.draw(text_to_drawable(shape.label, label_position(shape.geometry), proj, to_color(shape.imgui_color), font_size));
   }
 }
 wkttool::CoordinateBoundaries get_bounds(const GuiState& gui_state) {
@@ -157,7 +159,7 @@ void draw_scene(wkttool::SFMLWindowAdapter &window, const GuiState& gui_state,
   const auto axes = make_axes(bounds);
   window.draw(segments_to_drawables(grid, proj, grey, Thickness{1}));
   window.draw(segments_to_drawables(axes, proj, black, Thickness{2}));
-  draw_shapes(gui_state.shapes, window, proj);
+  draw_shapes(gui_state.shapes, window, proj, PointSize{static_cast<unsigned int>(gui_state.label_size)});
 
 }
 void draw_gui(GuiState& gui_state) {
@@ -168,8 +170,11 @@ void draw_gui(GuiState& gui_state) {
     ImGui::InputFloat("CoverageY", &gui_state.coverage_y);
     ImGui::InputFloat("GridX", &gui_state.grid_x);
     ImGui::InputFloat("GridY", &gui_state.grid_y);
+    ImGui::InputInt("LabelSize", &gui_state.label_size);
+
     ImGui::ColorEdit3("Background", (float*)gui_state.background.data(), ImGuiColorEditFlags_NoInputs );
     ImGui::End();
+
     ImGui::Begin("Scene");
     ImGui::InputTextMultiline("##Editor", &gui_state.editor_content);
     if (ImGui::Button("Import")) {
@@ -217,6 +222,7 @@ void draw_gui(GuiState& gui_state) {
       } else if (it->editing) {
         std::stringstream as_wkt;
         as_wkt << "\n";
+        as_wkt << it->label << ":";
         std::visit( [&as_wkt](const auto& g) {
             as_wkt << boost::geometry::wkt(g);}, 
           it->geometry);
